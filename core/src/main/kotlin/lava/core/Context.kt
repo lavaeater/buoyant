@@ -79,7 +79,7 @@ object Context : InjectionContext() {
             addSystem(SteerSystem())
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
-            addSystem(RenderSystem())
+            addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject()))
             addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(UpdateMemorySystem())
             addSystem(LogSystem())

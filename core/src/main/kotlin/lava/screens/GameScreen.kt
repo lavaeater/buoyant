@@ -1,41 +1,70 @@
 package lava.screens
 
-import com.badlogic.ashley.core.Engine
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.utils.viewport.ExtendViewport
-import ktx.app.KtxInputAdapter
-import ktx.app.KtxScreen
-import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
-import ktx.graphics.use
 import lava.core.BuoyantGame
 import lava.core.EntityFactory
 import lava.core.GameSettings
 import twodee.core.engine
+import twodee.input.CommandMap
 import twodee.screens.BasicScreen
 
 class GameScreen(
     game: BuoyantGame,
     private val gameSettings: GameSettings,
     private val entityFactory: EntityFactory
-) : BasicScreen(game, Color.BLACK), KtxScreen, KtxInputAdapter {
-    private val image = Texture("logo.png".toInternalFile(), true).apply { setFilter(
-        Texture.TextureFilter.Linear,
-        Texture.TextureFilter.Linear
-    ) }
+) : BasicScreen(game) {
+    init {
+        commandMap = CommandMap("Stuff").apply {
+            setBoth(
+                Input.Keys.A,
+                "Rotate Cam Left",
+                {
+                cameraRotation = 0f
+                }, {
+                    cameraRotation = 1f
+                })
+            setBoth(
+                Input.Keys.D,
+                "Rotate Cam Right",
+                {
+                cameraRotation = 0f
+                }, {
+                    cameraRotation = -1f
+                })
+        }
+    }
+
+    var cameraRotation = 0f
+
+    private val image = Texture("logo.png".toInternalFile(), true).apply {
+        setFilter(
+            Texture.TextureFilter.Linear,
+            Texture.TextureFilter.Linear
+        )
+    }
+
+    private var needsLevel = true
 
     override fun render(delta: Float) {
-        super<BasicScreen>.render(delta)
+        updateCamera(delta)
+
         engine().update(delta)
     }
 
+    private fun updateCamera(delta: Float) {
+        if(cameraRotation != 0f) {
+            camera.rotate(cameraRotation * delta * 5f)
+        }
+    }
+
     override fun show() {
-        super<BasicScreen>.show()
+        super.show()
+        if (needsLevel)
+            entityFactory.createMap("two")
+        needsLevel = false
     }
 
     override fun dispose() {

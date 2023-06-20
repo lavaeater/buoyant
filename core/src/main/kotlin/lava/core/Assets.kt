@@ -1,7 +1,6 @@
 package lava.core
 
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ktx.assets.DisposableContainer
 import ktx.assets.DisposableRegistry
 import ktx.assets.disposeSafely
@@ -14,11 +13,14 @@ fun assets(): Assets {
 
 class Assets : DisposableRegistry by DisposableContainer() {
 
-    private val mapTwo = Texture("maps/new_level/simplified/Level_0/_composite.png".toInternalFile())
-    private val mapTwoTop = Texture("maps/new_level/simplified/Level_0/Walls.png".toInternalFile())
-    private val mapTwoIntLayer = "maps/new_level/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
+    private val mapTwoTexture = Texture("ldtk/shafts/simplified/Level_0/Tiles.png".toInternalFile())
+//        .apply { setFilter(
+//        Texture.TextureFilter.Linear,
+//        Texture.TextureFilter.Linear
+//    ) }
+    private val mapTwoIntLayer = "ldtk/shafts/simplified/Level_0/IntGrid.csv".toInternalFile().readString()
 
-    val maps = mapOf("two" to Triple(mapTwo, mapTwoIntLayer, mapTwoTop))
+    val maps = mapOf("two" to Pair(mapTwoTexture, mapTwoIntLayer))
     override fun dispose() {
         registeredDisposables.disposeSafely()
     }
