@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Vector2
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.log.info
 import ktx.math.vec2
 import ktx.math.vec3
 import lava.core.BuoyantGame
@@ -76,6 +77,7 @@ class GameScreen(
                 "Zoom Camera In",
                 {
                     cameraZoom = 0f
+                    info { "cameraZoom: ${camera.zoom}" }
                 }, {
                     cameraZoom = -1f
                 })
@@ -84,6 +86,7 @@ class GameScreen(
                 "Zoom Camera Out",
                 {
                     cameraZoom = 0f
+                    info { "cameraZoom: ${camera.zoom}" }
                 }, {
                     cameraZoom = 1f
                 })

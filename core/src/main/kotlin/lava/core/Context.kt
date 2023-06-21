@@ -36,7 +36,9 @@ object Context : InjectionContext() {
             bindSingleton(gameSettings)
             bindSingleton(game)
             bindSingleton(PolygonSpriteBatch())
-            bindSingleton(OrthographicCamera())
+            bindSingleton(OrthographicCamera().apply {
+                zoom = 0.16f
+            })
             bindSingleton(
                 ExtendViewport(
                     gameSettings.GameWidth,
@@ -70,7 +72,8 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
-            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
+//            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
+            addSystem(CameraFollowSystem(inject(), 0.5f))
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject(), invertX = false, invertY = false))

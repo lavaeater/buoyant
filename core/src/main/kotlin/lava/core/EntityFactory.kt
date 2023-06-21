@@ -11,18 +11,50 @@ import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
+import ktx.box2d.circle
 import ktx.box2d.filter
 import ktx.math.vec2
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
 import lava.ecs.components.WaterComponent
-import twodee.ai.ashley.angleToDeg
+import twodee.ecs.ashley.components.Box2d
+import twodee.ecs.ashley.components.CameraFollow
 import twodee.ecs.ashley.components.LDtkMap
+import twodee.ecs.ashley.components.TransformComponent
 
 class EntityFactory(
     private val engine: Engine,
     private val world: World,
-    private val assets: Assets) {
+    private val assets: Assets
+) {
+
+    fun createPlayerEntity(startPoint: Vector2, width: Float, height: Float) {
+        engine.entity {
+            with<RenderableComponent> {
+                zIndex = 0
+            }
+            with<TransformComponent>()
+            with<CameraFollow>()
+            with<Box2d> {
+                body = world.body {
+                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+                    position.set(startPoint)
+                    box(width, height, vec2(0f, -height / 2)) {
+                        filter {
+                            categoryBits = Categories.bodies
+                            maskBits = Categories.whatBodiesCollideWith
+                        }
+                    }
+                    circle(width / 2, vec2(0f, width / 2)) {
+                        filter {
+                            categoryBits = Categories.extremities
+                            maskBits = Categories.whatExtremitiesCollideWith
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     fun createWaterEntity(points: List<Vector2>) {
         engine.entity {
@@ -30,7 +62,9 @@ class EntityFactory(
             with<PolygonComponent> {
                 this.points.addAll(points)
             }
-            with<RenderableComponent>()
+            with<RenderableComponent> {
+                zIndex = 1
+            }
         }
     }
 

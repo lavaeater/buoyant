@@ -5,9 +5,10 @@ import kotlin.experimental.or
 object Categories {
 
     const val walls: Short = 1
-    const val people: Short = 2
-    const val fish: Short = 4
+    const val bodies: Short = 2
+    const val extremities: Short = 4
 
-
-    val whatWallsCollideWith: Short = people or fish
+    val whatWallsCollideWith: Short = bodies or extremities
+    val whatBodiesCollideWith: Short = walls or bodies
+    val whatExtremitiesCollideWith: Short = walls or extremities
 }

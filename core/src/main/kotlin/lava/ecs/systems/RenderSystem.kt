@@ -68,7 +68,7 @@ class RenderSystem(
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if(LDtkMap.has(entity)) {
             renderMap(entity)
-            renderDebugStuff(entity)
+//            renderDebugStuff(entity)
         }
         if(PolygonComponent.has(entity)) {
             renderPolygon(entity)
@@ -127,18 +127,27 @@ class RenderSystem(
             val rightWall = vec2()
             val leftWall = vec2()
 
-            world().rayCast(eighty, eighty + Vector2.X.cpy().scl(25f) ) { fixture, point, normal, fraction ->
-                rightWall.set(point)
+            var lastFraction = 1f
+            world().rayCast(eighty, eighty + Vector2.X.cpy().scl(100f) ) { fixture, point, normal, fraction ->
+                if(fraction < lastFraction) {
+                    lastFraction = fraction
+                    rightWall.set(point)
+                }
                 RayCast.CONTINUE
             }
             waterLine.add(rightWall)
-            world().rayCast(rightWall, rightWall + Vector2.X.cpy().scl(-45f) ) { fixture, point, normal, fraction ->
-                leftWall.set(point)
+            lastFraction = 1f
+            world().rayCast(rightWall, rightWall + Vector2.X.cpy().scl(-100f) ) { fixture, point, normal, fraction ->
+                if(fraction < lastFraction) {
+                    lastFraction = fraction
+                    leftWall.set(point)
+                }
                 RayCast.CONTINUE
             }
             waterLine.add(leftWall)
 
             inject<EntityFactory>().createWaterEntity(listOf(leftWall, rightWall, bottomRight, bottomLeft))
+            inject<EntityFactory>().createPlayerEntity(eighty, 1f, 2.5f)
 
             needsWaterLine = false
         }
@@ -160,6 +169,7 @@ class RenderSystem(
 
     private fun renderMap(entity: Entity) {
         val lDtkMap = LDtkMap.get(entity)
+        getWaterLine(lDtkMap)
         batch.draw(
             lDtkMap.mapTextureRegion,
             lDtkMap.mapOrigin.x,
