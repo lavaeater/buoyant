@@ -3,7 +3,6 @@ package lava.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
-import ktx.math.minus
 import ktx.math.plus
 import lava.ecs.components.Buoyancy
 import lava.ecs.components.PolygonComponent

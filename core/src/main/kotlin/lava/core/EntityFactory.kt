@@ -16,10 +16,7 @@ import ktx.box2d.circle
 import ktx.box2d.filter
 import ktx.math.plus
 import ktx.math.vec2
-import lava.ecs.components.Buoyancy
-import lava.ecs.components.PolygonComponent
-import lava.ecs.components.RenderableComponent
-import lava.ecs.components.WaterComponent
+import lava.ecs.components.*
 import twodee.ecs.ashley.components.Box2d
 import twodee.ecs.ashley.components.CameraFollow
 import twodee.ecs.ashley.components.LDtkMap
@@ -61,6 +58,7 @@ class EntityFactory(
                 buoyancyOffset.set(0f, height / 2f)
                 checkForWaterPoint.set(vec2(0f, width / 2))
             }
+            with<DiveControl>()
         }
     }
 

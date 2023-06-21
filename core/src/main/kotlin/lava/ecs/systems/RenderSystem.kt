@@ -84,6 +84,7 @@ class RenderSystem(
         val buoyancy = Buoyancy.get(entity)
         val body = Box2d.get(entity).body
         shapeDrawer.filledCircle(body.position + buoyancy.checkForWaterPoint,0.25f, Color.RED)
+        shapeDrawer.line(body.position, body.position + body.linearVelocity, Color.RED)
     }
 
     val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)

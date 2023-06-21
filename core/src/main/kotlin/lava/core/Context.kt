@@ -16,6 +16,7 @@ import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
 import ktx.math.vec2
 import lava.ecs.systems.BuoyancySystem
+import lava.ecs.systems.DiveControlSystem
 import lava.ecs.systems.RenderSystem
 import lava.screens.GameScreen
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -76,6 +77,7 @@ object Context : InjectionContext() {
 //            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
             addSystem(CameraFollowSystem(inject(), 0.5f))
             addSystem(BuoyancySystem())
+            addSystem(DiveControlSystem())
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject(), invertX = false, invertY = false))
