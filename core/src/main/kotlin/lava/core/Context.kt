@@ -14,6 +14,8 @@ import com.badlogic.gdx.physics.box2d.Manifold
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
+import ktx.math.vec2
+import lava.ecs.systems.BuoyancySystem
 import lava.ecs.systems.RenderSystem
 import lava.screens.GameScreen
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -46,11 +48,10 @@ object Context : InjectionContext() {
                     inject<OrthographicCamera>() as Camera
                 )
             )
-            bindSingleton(createWorld().apply {
+            bindSingleton(createWorld(vec2(0f, -10f)).apply {
                 setContactListener(CollisionManager())
             })
             bindSingleton(RayHandler(inject()).apply {
-
                 setAmbientLight(.01f)
                 setBlurNum(3)
             })
@@ -74,6 +75,7 @@ object Context : InjectionContext() {
             addSystem(RemoveEntitySystem())
 //            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
             addSystem(CameraFollowSystem(inject(), 0.5f))
+            addSystem(BuoyancySystem())
             addSystem(Box2dUpdateSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject(), invertX = false, invertY = false))

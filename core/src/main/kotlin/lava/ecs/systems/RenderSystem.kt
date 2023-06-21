@@ -18,10 +18,12 @@ import ktx.math.vec2
 import lava.core.EntityFactory
 import lava.core.GameSettings
 import lava.core.TypeOfPoint
+import lava.ecs.components.Buoyancy
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.core.world
+import twodee.ecs.ashley.components.Box2d
 import twodee.ecs.ashley.components.LDtkMap
 import twodee.injection.InjectionContext.Companion.inject
 
@@ -73,6 +75,15 @@ class RenderSystem(
         if(PolygonComponent.has(entity)) {
             renderPolygon(entity)
         }
+        if(Buoyancy.has(entity)) {
+            renderBuoyancy(entity)
+        }
+    }
+
+    private fun renderBuoyancy(entity: Entity) {
+        val buoyancy = Buoyancy.get(entity)
+        val body = Box2d.get(entity).body
+        shapeDrawer.filledCircle(body.position + buoyancy.checkForWaterPoint,0.25f, Color.RED)
     }
 
     val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)

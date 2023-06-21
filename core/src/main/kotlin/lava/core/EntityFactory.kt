@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import ktx.ashley.entity
@@ -13,7 +14,9 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.math.plus
 import ktx.math.vec2
+import lava.ecs.components.Buoyancy
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
 import lava.ecs.components.WaterComponent
@@ -46,12 +49,17 @@ class EntityFactory(
                         }
                     }
                     circle(width / 2, vec2(0f, width / 2)) {
+                        this.userData = "head"
                         filter {
                             categoryBits = Categories.extremities
                             maskBits = Categories.whatExtremitiesCollideWith
                         }
                     }
                 }
+            }
+            with<Buoyancy> {
+                buoyancyOffset.set(0f, height / 2f)
+                checkForWaterPoint.set(vec2(0f, width / 2))
             }
         }
     }
