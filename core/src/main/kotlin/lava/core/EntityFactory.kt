@@ -13,6 +13,9 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.filter
 import ktx.math.vec2
+import lava.ecs.components.PolygonComponent
+import lava.ecs.components.RenderableComponent
+import lava.ecs.components.WaterComponent
 import twodee.ai.ashley.angleToDeg
 import twodee.ecs.ashley.components.LDtkMap
 
@@ -20,6 +23,17 @@ class EntityFactory(
     private val engine: Engine,
     private val world: World,
     private val assets: Assets) {
+
+    fun createWaterEntity(points: List<Vector2>) {
+        engine.entity {
+            with<WaterComponent>()
+            with<PolygonComponent> {
+                this.points.addAll(points)
+            }
+            with<RenderableComponent>()
+        }
+    }
+
     fun createMap(key: String): LDtkMap {
         var scaleFactor = 1f
         if (key == "two")
@@ -30,7 +44,11 @@ class EntityFactory(
         val textureRegion = TextureRegion(mapAssets.first)
         lateinit var LDtkMap: LDtkMap
         engine.entity {
+            with<RenderableComponent> {
+                zIndex = -1
+            }
             LDtkMap = with<LDtkMap> {
+                this.gridSize = gridSize
                 mapTextureRegion = textureRegion
                 mapRotation = -25f
                 mapScale = scaleFactor
