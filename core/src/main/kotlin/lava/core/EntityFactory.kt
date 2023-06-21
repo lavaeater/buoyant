@@ -2,6 +2,7 @@ package lava.core
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -12,6 +13,7 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.filter
 import ktx.math.vec2
+import twodee.ai.ashley.angleToDeg
 import twodee.ecs.ashley.components.LDtkMap
 
 class EntityFactory(
@@ -28,8 +30,9 @@ class EntityFactory(
         val textureRegion = TextureRegion(mapAssets.first)
         lateinit var LDtkMap: LDtkMap
         engine.entity {
-            LDtkMap = with {
+            LDtkMap = with<LDtkMap> {
                 mapTextureRegion = textureRegion
+                mapRotation = -25f
                 mapScale = scaleFactor
                 mapOrigin.set(mapOffset)
                 mapBounds = Rectangle(
@@ -44,7 +47,7 @@ class EntityFactory(
         return LDtkMap
     }
 
-    fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, LDtkMap: LDtkMap) {
+    fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
         /*
         To make it super easy, we just create a square per int-tile in the layer.
          */
@@ -52,10 +55,10 @@ class EntityFactory(
             l.split(',').forEachIndexed { x, c ->
                 if (TypeOfPoint.allTypes.containsKey(c)) {
                     val pointType = TypeOfPoint.allTypes[c]!!
-                    if (!LDtkMap.points.containsKey(pointType)) {
-                        LDtkMap.points[pointType] = mutableListOf()
+                    if (!lDtkMap.points.containsKey(pointType)) {
+                        lDtkMap.points[pointType] = mutableListOf()
                     }
-                    LDtkMap.points[pointType]!!.add(
+                    lDtkMap.points[pointType]!!.add(
                         vec2(
                             x * tileSize + mapOffset.x + tileSize / 2f,
                             y * tileSize + mapOffset.y - tileSize / 2f
@@ -65,13 +68,18 @@ class EntityFactory(
             }
         }
 
-        for (bound in LDtkMap.points[TypeOfPoint.Impassable]!!) {
-            LDtkMap.mapBodies.add(world.body {
+        for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
+            bound.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+        }
+
+        for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
+            lDtkMap.mapBodies.add(world.body {
                 type = BodyDef.BodyType.StaticBody
                 position.set(
                     bound.x,
                     bound.y
                 )
+                angle = lDtkMap.mapRotation.toRadians()
                 box(tileSize, tileSize) {
                     filter {
                         categoryBits = Categories.walls
@@ -81,6 +89,10 @@ class EntityFactory(
             })
         }
     }
+}
+
+private fun Float.toRadians(): Float {
+    return this * MathUtils.degreesToRadians
 }
 
 

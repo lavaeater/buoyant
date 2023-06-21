@@ -61,7 +61,13 @@ class RenderSystem(
         batch.draw(
             lDtkMap.mapTextureRegion,
             lDtkMap.mapOrigin.x,
-            lDtkMap.mapOrigin.y
+            lDtkMap.mapOrigin.y,
+            0f, 0f,
+            lDtkMap.mapTextureRegion.regionWidth.toFloat(),
+            lDtkMap.mapTextureRegion.regionHeight.toFloat(),
+            lDtkMap.mapScale,
+            lDtkMap.mapScale,
+            lDtkMap.mapRotation
         )
     }
 

@@ -18,7 +18,9 @@ object TeaVMBuilder {
         }
 
         // Register any classes or packages that require reflection here:
-        // TeaReflectionSupplier.addReflectionClass("lava.core.reflect")
+        TeaReflectionSupplier.addReflectionClass("twodee.ecs.ashley.components.LDtkMap::class.java")
+//        TeaReflectionSupplier.addReflectionClass("jam.ecs.components")
+//        TeaReflectionSupplier.addReflectionClass(Box2dSteerable::class.java)
 
         val tool = TeaBuilder.config(teaBuildConfiguration)
         tool.mainClass = "lava.core.teavm.TeaVMLauncher"
