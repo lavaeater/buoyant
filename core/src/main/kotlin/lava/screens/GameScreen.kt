@@ -34,10 +34,27 @@ class GameScreen(
                 }, {
                     cameraRotation = -1f
                 })
+            setBoth(
+                Input.Keys.UP,
+                "Zoom Camera In",
+                {
+                    cameraZoom = 0f
+                }, {
+                    cameraZoom = -1f
+                })
+            setBoth(
+                Input.Keys.DOWN,
+                "Zoom Camera Out",
+                {
+                    cameraZoom = 0f
+                }, {
+                    cameraZoom = 1f
+                })
         }
     }
 
-    var cameraRotation = 0f
+    private var cameraRotation = 0f
+    private var cameraZoom = 0f
 
     private val image = Texture("logo.png".toInternalFile(), true).apply {
         setFilter(
@@ -57,6 +74,9 @@ class GameScreen(
     private fun updateCamera(delta: Float) {
         if(cameraRotation != 0f) {
             camera.rotate(cameraRotation * delta * 5f)
+        }
+        if(cameraZoom != 0f) {
+            camera.zoom += cameraZoom * delta * 5f
         }
     }
 
