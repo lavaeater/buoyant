@@ -36,24 +36,13 @@ class EntityFactory(
                 body = world.body {
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint)
-                    box(width, height, vec2(0f, -height / 2)) {
+                    box(width, height) {
                         filter {
                             categoryBits = Categories.bodies
                             maskBits = Categories.whatBodiesCollideWith
                         }
                     }
-                    circle(width / 2, vec2(0f, width / 2)) {
-                        this.userData = "head"
-                        filter {
-                            categoryBits = Categories.extremities
-                            maskBits = Categories.whatExtremitiesCollideWith
-                        }
-                    }
                 }
-            }
-            with<Buoyancy> {
-                buoyancyOffset.set(0f, height / 2f)
-                checkForWaterPoint.set(vec2(0f, width / 2))
             }
             with<DiveControl>()
         }

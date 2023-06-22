@@ -7,15 +7,11 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.physics.box2d.Contact
-import com.badlogic.gdx.physics.box2d.ContactImpulse
-import com.badlogic.gdx.physics.box2d.ContactListener
-import com.badlogic.gdx.physics.box2d.Manifold
+import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
 import ktx.math.vec2
-import lava.ecs.systems.BuoyancySystem
 import lava.ecs.systems.BuoyantPhysicsSystem
 import lava.ecs.systems.DiveControlSystem
 import lava.ecs.systems.RenderSystem
@@ -77,7 +73,7 @@ object Context : InjectionContext() {
             addSystem(RemoveEntitySystem())
 //            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
             addSystem(CameraFollowSystem(inject(), 0.5f))
-            addSystem(BuoyancySystem())
+//            addSystem(BuoyancySystem())
             addSystem(DiveControlSystem())
             addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
             addSystem(BodyControlSystem())
@@ -95,11 +91,26 @@ object Context : InjectionContext() {
     }
 }
 
+object BuoyancySet {
+    val overlappingFixtures = mutableSetOf<ContactType.Buoyancy>()
+}
+
 sealed class ContactType {
     object Unknown : ContactType()
-
+    data class Buoyancy(val waterFixture: Fixture, val buoyantFixture: Fixture) : ContactType()
     companion object {
         fun getContactType(contact: Contact): ContactType {
+            val fixtureA = contact.fixtureA
+            val fixtureB = contact.fixtureB
+
+            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.body.type == BodyDef.BodyType.DynamicBody) {
+                return Buoyancy(fixtureA, fixtureB)
+            }
+
+            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.body.type == BodyDef.BodyType.DynamicBody) {
+                return Buoyancy(fixtureB, fixtureA)
+            }
+
             return Unknown
         }
     }
@@ -109,13 +120,14 @@ class CollisionManager : ContactListener {
     override fun beginContact(contact: Contact) {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
+            is ContactType.Buoyancy -> BuoyancySet.overlappingFixtures.add(contactType)
         }
     }
 
     override fun endContact(contact: Contact) {
         when (val contactType = ContactType.getContactType(contact)) {
-
             ContactType.Unknown -> {}
+            is ContactType.Buoyancy -> BuoyancySet.overlappingFixtures.remove(contactType)
         }
     }
 
