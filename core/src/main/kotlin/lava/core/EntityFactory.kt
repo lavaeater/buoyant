@@ -10,10 +10,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import ktx.ashley.entity
 import ktx.ashley.with
-import ktx.box2d.body
-import ktx.box2d.box
-import ktx.box2d.circle
-import ktx.box2d.filter
+import ktx.box2d.*
 import ktx.math.plus
 import ktx.math.vec2
 import lava.ecs.components.*
@@ -68,6 +65,21 @@ class EntityFactory(
             with<PolygonComponent> {
                 this.points.addAll(points)
             }
+            with<Box2d> {
+                body = world.body {
+                    type = BodyDef.BodyType.StaticBody
+                    position.set(0f, 0f)
+                    polygon(*points.toTypedArray()) {
+                        isSensor = true
+                        filter {
+                            categoryBits = Categories.water
+                            maskBits = Categories.whatWaterCollidesWith
+                        }
+                    }
+
+                }
+            }
+
             with<RenderableComponent> {
                 zIndex = 1
             }
