@@ -31,10 +31,16 @@ Our water is also just a horizontal line, very easy indeed.
                 val buoyancyForce = -world.gravity.cpy().scl(displacedMass)
                 val bBody = contact.buoyantFixture.body
                 bBody.applyForce(buoyancyForce, centroid, true)
+
+                /**
+                 * Do BETTER drag calculations, because these are indeed shit.
+                 */
+
+
                 val velDir = bBody.linearVelocity.cpy()
                 val velocity = bBody.linearVelocity.len()
 
-                val dragMag = contact.waterFixture.density * velocity.pow(2)
+                val dragMag = velocity.pow(2)
                 val dragForce = velDir.nor().scl(-dragMag)
                 bBody.applyForce(dragForce, centroid, true)
 
