@@ -2,7 +2,6 @@ package lava.ecs.systems
 
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.ashley.systems.SortedIteratingSystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.*
@@ -18,7 +17,7 @@ import ktx.math.vec2
 import lava.core.EntityFactory
 import lava.core.GameSettings
 import lava.core.TypeOfPoint
-import lava.ecs.components.Buoyancy
+import lava.ecs.components.DiveControl
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -75,16 +74,18 @@ class RenderSystem(
         if(PolygonComponent.has(entity)) {
             renderPolygon(entity)
         }
-        if(Buoyancy.has(entity)) {
-            renderBuoyancy(entity)
+        if(DiveControl.has(entity)) {
+            renderDiveControl(entity)
         }
     }
 
-    private fun renderBuoyancy(entity: Entity) {
-        val buoyancy = Buoyancy.get(entity)
+    private fun renderDiveControl(entity: Entity) {
+        val diveControl = DiveControl.get(entity)
         val body = Box2d.get(entity).body
-        shapeDrawer.filledCircle(body.position + buoyancy.checkForWaterPoint,0.25f, Color.RED)
-        shapeDrawer.line(body.position, body.position + body.linearVelocity, Color.RED)
+        val head = body.fixtureList.first { it.userData == "head" }
+        shapeDrawer.filledCircle(body.getWorldPoint(head.shape.getPosition()),0.25f, Color.RED)
+        shapeDrawer.line(body.position, body.position + diveControl.getVector().scl(10f), Color.RED)
+        shapeDrawer.line(body.position, body.position + body.linearVelocity.cpy().scl(0.1f), Color.YELLOW)
     }
 
     val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)

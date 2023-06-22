@@ -36,10 +36,19 @@ class EntityFactory(
                 body = world.body {
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint)
+                    userData = this@entity.entity
                     box(width, height) {
+                        userData = "body"
                         filter {
                             categoryBits = Categories.bodies
                             maskBits = Categories.whatBodiesCollideWith
+                        }
+                    }
+                    circle(width / 2f, vec2(0f, height - width / 2f)) {
+                        userData = "head"
+                        filter {
+                            categoryBits = Categories.head
+                            maskBits = Categories.whatHeadsCollideWith
                         }
                     }
                 }
@@ -60,7 +69,7 @@ class EntityFactory(
                     position.set(0f, 0f)
                     polygon(*points.toTypedArray()) {
                         isSensor = true
-                        density = 2f
+                        density = 1f
                         filter {
                             categoryBits = Categories.water
                             maskBits = Categories.whatWaterCollidesWith

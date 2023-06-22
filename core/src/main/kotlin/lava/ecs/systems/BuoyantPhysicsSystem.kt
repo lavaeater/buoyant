@@ -6,13 +6,12 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.Shape
 import com.badlogic.gdx.physics.box2d.World
-import ktx.math.unaryMinus
-import ktx.math.vec2
+import ktx.math.*
 import lava.core.BuoyancySet
 import twodee.ecs.ashley.systems.Box2dUpdateSystem
 import kotlin.math.pow
 
-data class IntersectionData(val centroid: Vector2, val area: Float, val under: Boolean = true)
+data class IntersectionData(val polygon: Polygon, val centroid: Vector2, val area: Float, val under: Boolean = true)
 
 class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, private val world: World) :
     Box2dUpdateSystem(timeStep, velIters, posIters) {
@@ -36,14 +35,30 @@ Our water is also just a horizontal line, very easy indeed.
                  * Do BETTER drag calculations, because these are indeed shit.
                  */
 
+                val transformedVectors = intersectionData.polygon.transformedVectors()
+                for(index in transformedVectors.indices step 2) {
+                    val p0 = transformedVectors[index]
+                    val p1 = transformedVectors[index + 1]
+                    val midPoint = (p0 + p1) / 2f
 
-                val velDir = bBody.linearVelocity.cpy()
-                val velocity = bBody.linearVelocity.len()
+                    val velDir = contact.buoyantFixture.body.getLinearVelocityFromWorldPoint(midPoint) -
+                        contact.waterFixture.body.getLinearVelocityFromWorldPoint(midPoint)
+                    val velocity = velDir.len()
+                    velDir.nor()
 
-                val dragMag = velocity.pow(2)
-                val dragForce = velDir.nor().scl(-dragMag)
-                bBody.applyForce(dragForce, centroid, true)
+                    val edge = p1 - p0
+                    val edgeLength = edge.len()
+                    edge.nor()
+                    val normal = Vector2(-edge.y, edge.x)
 
+                    val dragDot = normal.dot(velDir)
+                    if(dragDot < 0f)
+                        continue
+
+                    val dragMag = dragDot * edgeLength * contact.waterFixture.density * velocity.pow(2)
+                    val dragForce =-velDir.scl(dragMag)
+                    contact.buoyantFixture.body.applyForce(dragForce, midPoint, true)
+                }
             }
         }
 
@@ -96,15 +111,15 @@ Our water is also just a horizontal line, very easy indeed.
 
                 val returnValue = if (otherVertices.minOf { it.y } > waterLine.first.y) {
                     //Entire polygon is above waterline
-                    IntersectionData(vec2(), 0f, false)
+                    IntersectionData(Polygon(), vec2(), 0f, false)
                 } else if (otherVertices.maxOf { it.y } < waterLine.first.y) {
                     //Entire polygon is below waterline
                     val polygon = Polygon(otherVertices.flatMap { listOf(it.x, it.y) }.toFloatArray())
-                    IntersectionData(polygon.getCentroid(centroid), polygon.area(), true)
+                    IntersectionData(polygon, polygon.getCentroid(centroid), polygon.area(), true)
                 } else {
                     val polygon = Polygon(otherVertices.flatMap { listOf(it.x, it.y) }.toFloatArray())
                     val intersectionPolygon = polygon.intersectedPolygon(waterLine.first, waterLine.second)
-                    IntersectionData(intersectionPolygon.getCentroid(centroid), intersectionPolygon.area(), true)
+                    IntersectionData(intersectionPolygon, intersectionPolygon.getCentroid(centroid), intersectionPolygon.area(), true)
                 }
                 return returnValue
             }
