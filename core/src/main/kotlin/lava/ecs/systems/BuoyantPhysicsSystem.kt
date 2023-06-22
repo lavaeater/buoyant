@@ -1,18 +1,20 @@
 package lava.ecs.systems
 
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.Shape
+import com.badlogic.gdx.physics.box2d.World
+import ktx.math.unaryMinus
 import ktx.math.vec2
+import lava.core.BuoyancySet
 import twodee.ecs.ashley.systems.Box2dUpdateSystem
 import kotlin.math.pow
-import kotlin.math.sqrt
 
 data class IntersectionData(val centroid: Vector2, val area: Float, val under: Boolean = true)
 
-class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int) :
+class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, private val world: World) :
     Box2dUpdateSystem(timeStep, velIters, posIters) {
     override fun everyTimeStep(deltaTime: Float) {
 
@@ -22,14 +24,33 @@ class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int) :
 Our water is also just a horizontal line, very easy indeed.
          */
 
+        for (contact in BuoyancySet.overlappingFixtures) {
+            val intersectionData = findIntersection(contact.waterFixture, contact.buoyantFixture)
+            if (intersectionData.under) {
+                val displacedMass = contact.waterFixture.density * intersectionData.area
+                val buoyancyForce = -world.gravity.cpy().scl(displacedMass)
+                val bBody = contact.buoyantFixture.body
+                bBody.applyForce(buoyancyForce, centroid, true)
+                val velDir = bBody.linearVelocity.cpy()
+                val velocity = bBody.linearVelocity.len()
+
+                val dragMag = contact.waterFixture.density * velocity.pow(2)
+                val dragForce = velDir.nor().scl(-dragMag)
+                bBody.applyForce(dragForce, centroid, true)
+
+            }
+        }
 
     }
 
+    private val waterVertices = mutableListOf<Vector2>()
+    private val otherVertices = mutableListOf<Vector2>()
+    private val centroid = vec2()
     fun findIntersection(waterFixture: Fixture, otherFixture: Fixture): IntersectionData {
+        waterVertices.clear()
+        otherVertices.clear()
         val waterShape = waterFixture.shape
         val otherShape = otherFixture.shape
-        val waterVertices = mutableListOf<Vector2>()
-        val otherVertices = mutableListOf<Vector2>()
         var waterLine = Pair(vec2(-1000f, 0f), vec2(1000f, 0f))
         when (waterShape.type) {
             com.badlogic.gdx.physics.box2d.Shape.Type.Polygon -> {
@@ -50,51 +71,36 @@ Our water is also just a horizontal line, very easy indeed.
             }
         }
 
+
         when (otherShape.type) {
-//            Shape.Type.Circle -> {
-//                /**
-//                 * Area is the sector MINUS the triangle formed by the center of the circle and the two points of intersection.
-//                 */
-//                val circleShape = otherShape as com.badlogic.gdx.physics.box2d.CircleShape
-//                val circleCenter = circleShape.position
-//                val circleRadius = circleShape.radius
-//
-//                val dX = waterLine.second.x - waterLine.first.x
-//                val dY = waterLine.second.y - waterLine.first.y
-//                val dR = sqrt(dX.pow(2) + dY.pow(2))
-//                val bigD = waterLine.first.x * waterLine.second.y - waterLine.second.x * waterLine.first.y
-//
-//                val discriminant = circleRadius.pow(2) * dR.pow(2) - bigD.pow(2)
-//                if(discriminant <= 0f) {
-//                    val circleMinY = circleCenter.y - circleRadius
-//                    return if(circleMinY < waterLine.first.y) {
-//                        IntersectionData(circleCenter.cpy(), circleRadius.pow(2) * MathUtils.PI)
-//                    } else {
-//                        IntersectionData(vec2(), 0f, false)
-//                    }
-//                } else {
-//
-//                    val x1 = (bigD * dY + (dY) * dX * sqrt(discriminant)) / dR.pow(2)
-//                    val y1 = (-bigD * dX + (dY) * dY * sqrt(discriminant)) / dR.pow(2)
-//
-//
-//                    /**
-//                     * This is so much easier than I am thinking it is - a circle intersecting a line can be thought of
-//                     * as a sector where we know... something
-//                     *
-//                     */
-//
-//
-//                }
-//
-//            }
             Shape.Type.Polygon -> {
                 val polygonShape = otherShape as com.badlogic.gdx.physics.box2d.PolygonShape
+
+                /*
+                Since we have decided to have a **waterline** that is a horizontal line, we can
+                simply create a new polygon that is the intersection of the waterline and the
+                vertices
+                 */
+
                 for (i in 0 until polygonShape.vertexCount) {
                     val vertex = Vector2()
                     polygonShape.getVertex(i, vertex)
-                    otherVertices.add(vertex)
+                    otherVertices.add(otherFixture.body.getWorldPoint(vertex).cpy())
                 }
+
+                val returnValue = if (otherVertices.minOf { it.y } > waterLine.first.y) {
+                    //Entire polygon is above waterline
+                    IntersectionData(vec2(), 0f, false)
+                } else if (otherVertices.maxOf { it.y } < waterLine.first.y) {
+                    //Entire polygon is below waterline
+                    val polygon = Polygon(otherVertices.flatMap { listOf(it.x, it.y) }.toFloatArray())
+                    IntersectionData(polygon.getCentroid(centroid), polygon.area(), true)
+                } else {
+                    val polygon = Polygon(otherVertices.flatMap { listOf(it.x, it.y) }.toFloatArray())
+                    val intersectionPolygon = polygon.intersectedPolygon(waterLine.first, waterLine.second)
+                    IntersectionData(intersectionPolygon.getCentroid(centroid), intersectionPolygon.area(), true)
+                }
+                return returnValue
             }
 
             else -> {
@@ -104,13 +110,66 @@ Our water is also just a horizontal line, very easy indeed.
     }
 }
 
-fun Polygon.inside(other:Polygon): Boolean {
-    for(i in 0 until this.vertexCount) {
+fun Polygon.transformedVectors(): List<Vector2> {
+    val vectors = mutableListOf<Vector2>()
+    for (index in transformedVertices.indices step 2) {
+        vectors.add(Vector2(transformedVertices[index], transformedVertices[index + 1]))
+    }
+    return vectors
+}
+
+fun Polygon.intersectedPolygon(lineStart: Vector2, lineEnd: Vector2): Polygon {
+    val intersectionPoints = mutableListOf<Vector2>()
+    for (i in transformedVertices.indices step 2) {
+        val currentVertex = Vector2(transformedVertices[i], transformedVertices[i + 1])
+        val nextVertex = Vector2(
+            transformedVertices[(i + 2) % transformedVertices.size],
+            transformedVertices[(i + 3) % transformedVertices.size]
+        )
+
+        val intersection = Vector2()
+        if (Intersector.intersectSegments(lineStart, lineEnd, currentVertex, nextVertex, intersection)) {
+            intersectionPoints.add(intersection.cpy())
+        }
+    }
+
+    // What to do now? Remove all points ABOVE the waterline
+    val vectors = this.transformedVectors()
+    val belowPoints = vectors.filter { it.y < lineStart.y }
+    intersectionPoints.addAll(belowPoints)
+    /*
+    Order the points
+     */
+    intersectionPoints.sortClockWise(this.getCentroid(vec2()))
+
+    return Polygon(intersectionPoints.flatMap { listOf(it.x, it.y) }.toFloatArray())
+}
+
+fun Polygon.inside(other: Polygon): Boolean {
+    for (i in 0 until this.vertexCount) {
         val vertex = vec2()
         this.getVertex(i, vertex)
-        if(!other.contains(vertex)) {
+        if (!other.contains(vertex)) {
             return false
         }
     }
     return true
+}
+
+fun MutableList<Vector2>.sortClockWise(centroid: Vector2): MutableList<Vector2> {
+    this.sortWith { o1, o2 ->
+        val slope1 = o1.slope(centroid)
+        val slope2 = o2.slope(centroid)
+        if (slope1 < slope2) -1 else 1
+    }
+    return this
+}
+
+fun Vector2.slope(reference: Vector2): Float {
+    val dx = this.x - reference.x
+    val dy = this.y - reference.y
+    if (dx == 0f) {
+        return if (dy >= 0f) Float.POSITIVE_INFINITY else Float.NEGATIVE_INFINITY
+    }
+    return dy / dx
 }

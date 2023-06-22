@@ -160,6 +160,7 @@ class RenderSystem(
 
             inject<EntityFactory>().createWaterEntity(listOf(leftWall, rightWall, bottomRight, bottomLeft))
             inject<EntityFactory>().createPlayerEntity(eighty, 1f, 2.5f)
+//            inject<EntityFactory>().createPlayerEntity(vec2(eighty.x, eighty.y - 0.5f), 1f, 2.5f)
 
             needsWaterLine = false
         }

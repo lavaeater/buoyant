@@ -60,6 +60,7 @@ class EntityFactory(
                     position.set(0f, 0f)
                     polygon(*points.toTypedArray()) {
                         isSensor = true
+                        density = 3.8f
                         filter {
                             categoryBits = Categories.water
                             maskBits = Categories.whatWaterCollidesWith

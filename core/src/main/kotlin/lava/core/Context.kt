@@ -75,7 +75,7 @@ object Context : InjectionContext() {
             addSystem(CameraFollowSystem(inject(), 0.5f))
 //            addSystem(BuoyancySystem())
             addSystem(DiveControlSystem())
-            addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters))
+            addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject(), invertX = false, invertY = false))
             addSystem(FlashlightDirectionSystem())
