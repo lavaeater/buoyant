@@ -8,7 +8,9 @@ import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class DiveControl: Component, Pool.Poolable {
+    val diveForceAnchor = vec2()
     val directions = mutableSetOf<Direction>()
+    var diveForce = 25f
     fun add(direction: Direction) {
         directions.add(direction)
     }
@@ -35,7 +37,9 @@ class DiveControl: Component, Pool.Poolable {
     }
 
     override fun reset() {
+        diveForce = 25f
         directions.clear()
+        diveForceAnchor.setZero()
     }
 
     companion object {

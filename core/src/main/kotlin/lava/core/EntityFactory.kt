@@ -55,27 +55,34 @@ class EntityFactory(
                             maskBits = Categories.whatHeadsCollideWith
                         }
 
+                    }
                 }
-//                bodies["body"] = body
-//                bodies["head"] = world.body {
-//                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
-//                    position.set(startPoint + vec2(0f, height - width / 2f))
-//                    box(width, width, vec2(0f, 0f)) {
-//                        userData = "head"
-//                        density = 0.1f
-//                        filter {
-//                            categoryBits = Categories.head
-//                            maskBits = Categories.whatHeadsCollideWith
-//                        }
-//                    }
+                bodies["body"] = body
+                bodies["legs"] = world.body {
+                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+                    position.set(startPoint + vec2(0f, height - width / 2f))
+                    box(width, height * 1.5f, vec2(0f, 0f)) {
+                        userData = "legs"
+                        density = 0.15f
+                        filter {
+                            categoryBits = Categories.head
+                            maskBits = Categories.whatHeadsCollideWith
+                        }
+                    }
                 }
-//                bodies["head"]!!.distanceJointWith(body){
-//                    length = .5f
-////                    localAnchorA.set(0f, 0f)
-//                    localAnchorB.set(0f, height / 2f)
-//                }
+                body.revoluteJointWith(bodies["legs"]!!) {
+                    localAnchorA.set(0f, -height /2f)
+                    localAnchorB.set(0f, height * 1.5f / 2f)
+                    collideConnected = false
+                    enableLimit = true
+                    lowerAngle = MathUtils.degreesToRadians * -90f
+                    upperAngle = MathUtils.degreesToRadians * 15f
+                }
             }
-            with<DiveControl>()
+            with<DiveControl> {
+                diveForce = 40f
+                diveForceAnchor.set(0f, height / 2f + height / 3f)
+            }
         }
     }
 

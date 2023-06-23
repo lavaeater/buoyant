@@ -18,11 +18,9 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
         val diveControl = DiveControl.get(entity)
         if(diveControl.hasAny()) {
             val box2d = Box2d.get(entity)
-//            val head = box2d.bodies["head"]!!
             val body = box2d.body
-            val head = body.fixtureList.first { it.userData == "head" }
             val diveForce = diveControl.getVector().cpy().scl(50f)
-            body.applyForce(diveForce,body.getWorldPoint(head.shape.getPosition()), true)
+            body.applyForce(diveForce,body.getWorldPoint(diveControl.diveForceAnchor), true)
         }
     }
 }
