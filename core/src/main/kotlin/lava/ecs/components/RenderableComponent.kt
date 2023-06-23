@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
+
 class RenderableComponent: Component, Pool.Poolable {
     var zIndex = 0
 

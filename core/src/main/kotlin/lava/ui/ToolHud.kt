@@ -26,7 +26,6 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
 
     override val stage by lazy {
         Stage(hudViewPort, batch).apply {
-            isDebugAll = true
             actors {
                 table {
                     // MAIN TABLE

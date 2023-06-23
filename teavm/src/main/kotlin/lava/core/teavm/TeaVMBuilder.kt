@@ -18,7 +18,8 @@ object TeaVMBuilder {
         }
 
         // Register any classes or packages that require reflection here:
-        TeaReflectionSupplier.addReflectionClass("twodee.ecs.ashley.components.LDtkMap::class.java")
+        TeaReflectionSupplier.addReflectionClass("twodee.ecs.ashley.components")
+        TeaReflectionSupplier.addReflectionClass("lava.ecs.components")
 //        TeaReflectionSupplier.addReflectionClass("jam.ecs.components")
 //        TeaReflectionSupplier.addReflectionClass(Box2dSteerable::class.java)
 
