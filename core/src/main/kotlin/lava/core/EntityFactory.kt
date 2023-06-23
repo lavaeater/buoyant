@@ -47,25 +47,33 @@ class EntityFactory(
                             maskBits = Categories.whatBodiesCollideWith
                         }
                     }
-
-                }
-                bodies["body"] = body
-                bodies["head"] = world.body {
-                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
-                    position.set(startPoint + vec2(0f, height - width / 2f))
-                    circle(width / 2f, vec2(0f, 0f)) {
+                    circle(width / 2f, vec2(0f, height / 2f + width / 2f)) {
+                        density = 0.05f
                         userData = "head"
                         filter {
                             categoryBits = Categories.head
                             maskBits = Categories.whatHeadsCollideWith
                         }
-                    }
+
                 }
-                bodies["head"]!!.distanceJointWith(body){
-                    length = .5f
-//                    localAnchorA.set(0f, 0f)
-                    localAnchorB.set(0f, height / 2f)
+//                bodies["body"] = body
+//                bodies["head"] = world.body {
+//                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+//                    position.set(startPoint + vec2(0f, height - width / 2f))
+//                    box(width, width, vec2(0f, 0f)) {
+//                        userData = "head"
+//                        density = 0.1f
+//                        filter {
+//                            categoryBits = Categories.head
+//                            maskBits = Categories.whatHeadsCollideWith
+//                        }
+//                    }
                 }
+//                bodies["head"]!!.distanceJointWith(body){
+//                    length = .5f
+////                    localAnchorA.set(0f, 0f)
+//                    localAnchorB.set(0f, height / 2f)
+//                }
             }
             with<DiveControl>()
         }
