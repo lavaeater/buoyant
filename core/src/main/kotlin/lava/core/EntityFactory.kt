@@ -62,7 +62,7 @@ class EntityFactory(
                     }
                 }
                 bodies["head"]!!.distanceJointWith(body){
-                    length = 2f
+                    length = .5f
 //                    localAnchorA.set(0f, 0f)
                     localAnchorB.set(0f, height / 2f)
                 }
