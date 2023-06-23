@@ -24,6 +24,5 @@ class HeadUnderWaterSystem:IteratingSystem(allOf(Box2d::class, DiveControl::clas
         val waterPolygon = PolygonComponent.get(waterEntity).polygon
         val headPosition = box2d.body.getWorldPoint(head.position)
         DiveControl.get(entity).isUnderWater = waterPolygon.contains(headPosition.x, headPosition.y)
-
     }
 }

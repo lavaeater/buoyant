@@ -12,6 +12,7 @@ class DiveControl: Component, Pool.Poolable {
     val directions = mutableSetOf<Direction>()
     var diveForce = 25f
     var isUnderWater = false
+    var airSupply = 100f
     fun add(direction: Direction) {
         directions.add(direction)
     }
@@ -39,6 +40,7 @@ class DiveControl: Component, Pool.Poolable {
 
     override fun reset() {
         diveForce = 25f
+        airSupply = 100f
         directions.clear()
         diveForceAnchor.setZero()
     }

@@ -22,6 +22,20 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
             val diveForce = diveControl.getVector().cpy().scl(50f)
             body.applyForce(diveForce,body.getWorldPoint(diveControl.diveForceAnchor), true)
         }
+        fixBreathing(entity, diveControl, deltaTime)
+    }
+
+    private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
+        if(diveControl.isUnderWater) {
+            if(diveControl.hasAny()) {
+                diveControl.airSupply -= deltaTime * 4f
+            } else {
+                diveControl.airSupply -= deltaTime * 2f
+            }
+
+        } else {
+            diveControl.airSupply = 100f
+        }
     }
 }
 
