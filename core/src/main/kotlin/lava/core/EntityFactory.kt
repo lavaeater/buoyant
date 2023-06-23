@@ -44,6 +44,12 @@ class EntityFactory(
                             maskBits = Categories.whatBodiesCollideWith
                         }
                     }
+
+                }
+                bodies["body"] = body
+                bodies["head"] = world.body {
+                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+                    position.set(startPoint + vec2(0f, height - width / 2f))
                     circle(width / 2f, vec2(0f, height - width / 2f)) {
                         userData = "head"
                         filter {
@@ -51,6 +57,14 @@ class EntityFactory(
                             maskBits = Categories.whatHeadsCollideWith
                         }
                     }
+                }
+                bodies["head"]!!.revoluteJointWith(bodies["body"]!!) {
+                    localAnchorA.set(0f, width / 2f)
+                    localAnchorB.set(0f, -width / 2f)
+                    collideConnected = false
+                    enableLimit = true
+                    lowerAngle = MathUtils.degreesToRadians * -15f
+                    upperAngle = MathUtils.degreesToRadians * 15f
                 }
             }
             with<DiveControl>()

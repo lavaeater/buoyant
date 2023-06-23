@@ -81,10 +81,11 @@ class RenderSystem(
 
     private fun renderDiveControl(entity: Entity) {
         val diveControl = DiveControl.get(entity)
-        val body = Box2d.get(entity).body
-        val head = body.fixtureList.first { it.userData == "head" }
-        shapeDrawer.filledCircle(body.getWorldPoint(head.shape.getPosition()),0.25f, Color.RED)
-        shapeDrawer.line(body.position, body.position + diveControl.getVector().scl(10f), Color.RED)
+        val box2d = Box2d.get(entity)
+        val body = box2d.body
+        val head = box2d.bodies["head"]!!
+        shapeDrawer.filledCircle(head.position,0.25f, Color.RED)
+        shapeDrawer.line(head.position, head.position + diveControl.getVector().scl(10f), Color.RED)
         shapeDrawer.line(body.position, body.position + body.linearVelocity.cpy().scl(0.1f), Color.YELLOW)
     }
 
