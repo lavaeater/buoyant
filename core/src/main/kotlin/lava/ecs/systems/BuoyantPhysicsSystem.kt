@@ -38,7 +38,7 @@ Our water is also just a horizontal line, very easy indeed.
                 val transformedVectors = intersectionData.polygon.transformedVectors()
                 for(index in transformedVectors.indices step 2) {
                     val p0 = transformedVectors[index]
-                    val p1 = transformedVectors[index + 1]
+                    val p1 = if(index < transformedVectors.size - 1) transformedVectors[index + 1] else transformedVectors[0]
                     val midPoint = (p0 + p1) / 2f
 
                     val velDir = contact.buoyantFixture.body.getLinearVelocityFromWorldPoint(midPoint) -

@@ -37,7 +37,10 @@ class EntityFactory(
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint)
                     userData = this@entity.entity
+                    fixedRotation = false
+                    angularDamping = 0f
                     box(width, height) {
+                        density = 0.1f
                         userData = "body"
                         filter {
                             categoryBits = Categories.bodies
@@ -50,7 +53,7 @@ class EntityFactory(
                 bodies["head"] = world.body {
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint + vec2(0f, height - width / 2f))
-                    circle(width / 2f, vec2(0f, height - width / 2f)) {
+                    circle(width / 2f, vec2(0f, 0f)) {
                         userData = "head"
                         filter {
                             categoryBits = Categories.head
@@ -58,13 +61,10 @@ class EntityFactory(
                         }
                     }
                 }
-                bodies["head"]!!.revoluteJointWith(bodies["body"]!!) {
-                    localAnchorA.set(0f, width / 2f)
-                    localAnchorB.set(0f, -width / 2f)
-                    collideConnected = false
-                    enableLimit = true
-                    lowerAngle = MathUtils.degreesToRadians * -15f
-                    upperAngle = MathUtils.degreesToRadians * 15f
+                bodies["head"]!!.distanceJointWith(body){
+                    length = 2f
+//                    localAnchorA.set(0f, 0f)
+                    localAnchorB.set(0f, height / 2f)
                 }
             }
             with<DiveControl>()
