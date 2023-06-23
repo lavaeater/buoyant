@@ -11,6 +11,7 @@ class DiveControl: Component, Pool.Poolable {
     val diveForceAnchor = vec2()
     val directions = mutableSetOf<Direction>()
     var diveForce = 25f
+    var isUnderWater = false
     fun add(direction: Direction) {
         directions.add(direction)
     }

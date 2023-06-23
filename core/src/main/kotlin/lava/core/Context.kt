@@ -14,6 +14,7 @@ import ktx.box2d.createWorld
 import ktx.math.vec2
 import lava.ecs.systems.BuoyantPhysicsSystem
 import lava.ecs.systems.DiveControlSystem
+import lava.ecs.systems.HeadUnderWaterSystem
 import lava.ecs.systems.RenderSystem
 import lava.screens.GameScreen
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -57,7 +58,6 @@ object Context : InjectionContext() {
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
             bindSingleton(EntityFactory(inject(), inject(), inject()))
-            //bindSingleton(HackLightEngine(0.01f, 0.01f, 0.01f, 0.1f))
             bindSingleton(
                 GameScreen(
                     inject(),
@@ -74,6 +74,7 @@ object Context : InjectionContext() {
 //            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
             addSystem(CameraFollowSystem(inject(), 0.5f))
 //            addSystem(BuoyancySystem())
+            addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())
             addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))
             addSystem(BodyControlSystem())

@@ -11,8 +11,6 @@ import lava.core.BuoyancySet
 import twodee.ecs.ashley.systems.Box2dUpdateSystem
 import kotlin.math.pow
 
-data class IntersectionData(val polygon: Polygon, val centroid: Vector2, val area: Float, val under: Boolean = true)
-
 class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, private val world: World) :
     Box2dUpdateSystem(timeStep, velIters, posIters) {
     override fun everyTimeStep(deltaTime: Float) {
