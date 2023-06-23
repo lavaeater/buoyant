@@ -89,7 +89,7 @@ class RenderSystem(
 //        shapeDrawer.line(body.position, body.position + body.linearVelocity.cpy().scl(0.1f), Color.YELLOW)
     }
 
-    val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)
+    private val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)
 
     private fun renderPolygon(entity: Entity) {
         val polygonComponent = PolygonComponent.get(entity)

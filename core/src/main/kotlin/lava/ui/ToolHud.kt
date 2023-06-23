@@ -13,7 +13,7 @@ import twodee.core.engine
 import twodee.extensions.boundLabel
 import twodee.ui.LavaHud
 
-class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMultiplexer) : LavaHud(batch) {
+class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMultiplexer) : LavaHud(batch, 120f) {
     /**
      * Now you need to flexbox this UI into something usable.
      *
@@ -97,7 +97,7 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
                         })
                         row()
                         boundLabel({
-                            "Air left: ${diveControl.airSupply}"
+                            "Air left: ${diveControl.airSupply.toInt()} %"
                         })
                     }
                         .inCell

@@ -38,7 +38,7 @@ class EntityFactory(
                     position.set(startPoint)
                     userData = this@entity.entity
                     fixedRotation = false
-                    angularDamping = 0f
+                    angularDamping = 0.5f
                     box(width, height) {
                         density = 0.1f
                         userData = "body"
@@ -61,6 +61,7 @@ class EntityFactory(
                 bodies["legs"] = world.body {
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint + vec2(0f, height - width / 2f))
+                    angularDamping = 0.5f
                     box(width, height * 1.5f, vec2(0f, 0f)) {
                         userData = "legs"
                         density = 0.15f
@@ -80,7 +81,7 @@ class EntityFactory(
                 }
             }
             with<DiveControl> {
-                diveForce = 40f
+                diveForce = 50f
                 diveForceAnchor.set(0f, height / 2f + height / 3f)
             }
         }

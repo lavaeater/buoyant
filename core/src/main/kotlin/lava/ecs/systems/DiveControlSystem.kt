@@ -2,6 +2,7 @@ package lava.ecs.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.CircleShape
 import com.badlogic.gdx.physics.box2d.PolygonShape
@@ -14,13 +15,19 @@ import lava.ecs.components.DiveControl
 import twodee.ecs.ashley.components.Box2d
 
 class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class).get()) {
+
+
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val diveControl = DiveControl.get(entity)
         if(diveControl.hasAny()) {
             val box2d = Box2d.get(entity)
             val body = box2d.body
-            val diveForce = diveControl.getVector().cpy().scl(50f)
+            val diveForce = diveControl.getVector().cpy().scl(diveControl.diveForce * MathUtils.lerp(0.5f, 1f, MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer)))
             body.applyForce(diveForce,body.getWorldPoint(diveControl.diveForceAnchor), true)
+            diveControl.strokeTimer -= deltaTime
+            if(diveControl.strokeTimer < 0f) diveControl.strokeTimer = diveControl.strokeTimerDefault
+        } else {
+            diveControl.strokeTimer = diveControl.strokeTimerDefault
         }
         fixBreathing(entity, diveControl, deltaTime)
     }
@@ -28,9 +35,9 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
     private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
         if(diveControl.isUnderWater) {
             if(diveControl.hasAny()) {
-                diveControl.airSupply -= deltaTime * 4f
-            } else {
                 diveControl.airSupply -= deltaTime * 2f
+            } else {
+                diveControl.airSupply -= deltaTime * 1f
             }
 
         } else {
