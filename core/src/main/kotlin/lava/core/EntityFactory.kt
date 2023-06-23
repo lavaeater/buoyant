@@ -75,8 +75,8 @@ class EntityFactory(
                     localAnchorB.set(0f, height * 1.5f / 2f)
                     collideConnected = false
                     enableLimit = true
-                    lowerAngle = MathUtils.degreesToRadians * -90f
-                    upperAngle = MathUtils.degreesToRadians * 15f
+                    lowerAngle = MathUtils.degreesToRadians * -25f
+                    upperAngle = MathUtils.degreesToRadians * 10f
                 }
             }
             with<DiveControl> {

@@ -3,11 +3,10 @@ package lava.ui
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
-import ktx.ashley.allOf
 import ktx.scene2d.actors
+import ktx.scene2d.label
 import ktx.scene2d.table
 import ktx.scene2d.verticalGroup
-import twodee.ecs.ashley.components.Player
 import twodee.ui.LavaHud
 
 class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMultiplexer) : LavaHud(batch) {
@@ -64,6 +63,9 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
                             .width(hudViewPort.worldWidth * 0.1f)
                         table {
                             // CENTER TABLE
+                            label("Center")
+                                .inCell
+                                .center()
                         }
                             .inCell
                             .fill()
@@ -83,6 +85,9 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
                     row()
                     table {
                         // BOTTOM ROW
+                        label("Bottom Left")
+                            .inCell
+                            .left()
                     }
                         .inCell
                         .expand()

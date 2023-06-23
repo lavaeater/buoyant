@@ -1,6 +1,7 @@
 package lava.screens
 
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Vector2
 import ktx.ashley.allOf
@@ -14,6 +15,7 @@ import lava.core.EntityFactory
 import lava.core.GameSettings
 import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
+import lava.ui.ToolHud
 import twodee.core.engine
 import twodee.input.CommandMap
 import twodee.screens.BasicScreen
@@ -21,7 +23,9 @@ import twodee.screens.BasicScreen
 class GameScreen(
     game: BuoyantGame,
     private val gameSettings: GameSettings,
-    private val entityFactory: EntityFactory
+    private val entityFactory: EntityFactory,
+    private val inputMultiplexer: InputMultiplexer,
+    private val hud: ToolHud
 ) : BasicScreen(game) {
     init {
         commandMap = CommandMap("Stuff").apply {
@@ -124,8 +128,8 @@ class GameScreen(
 
     override fun render(delta: Float) {
         updateCamera(delta)
-
         engine().update(delta)
+        hud.render(delta)
     }
 
     private fun updateCamera(delta: Float) {

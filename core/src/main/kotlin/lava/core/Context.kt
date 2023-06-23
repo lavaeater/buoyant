@@ -3,20 +3,26 @@ package lava.core
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.physics.box2d.*
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.assets.disposeSafely
+import ktx.assets.toInternalFile
 import ktx.box2d.createWorld
 import ktx.math.vec2
+import ktx.scene2d.Scene2DSkin
 import lava.ecs.systems.BuoyantPhysicsSystem
 import lava.ecs.systems.DiveControlSystem
 import lava.ecs.systems.HeadUnderWaterSystem
 import lava.ecs.systems.RenderSystem
 import lava.screens.GameScreen
+import lava.ui.ToolHud
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.ecs.ashley.systems.*
 import twodee.injection.InjectionContext
@@ -32,6 +38,7 @@ object Context : InjectionContext() {
     }
 
     fun initialize(game: BuoyantGame) {
+        Scene2DSkin.defaultSkin = Skin("ui/uiskin.json".toInternalFile())
         buildContext {
             val gameSettings = GameSettings()
             bindSingleton(gameSettings)
@@ -58,8 +65,14 @@ object Context : InjectionContext() {
             bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
             bindSingleton(EntityFactory(inject(), inject(), inject()))
+            bindSingleton(InputMultiplexer().apply {
+                Gdx.input.inputProcessor = this
+            })
+            bindSingleton(ToolHud(inject(), inject()))
             bindSingleton(
                 GameScreen(
+                    inject(),
+                    inject(),
                     inject(),
                     inject(),
                     inject()
@@ -71,9 +84,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
-//            addSystem(CameraAndMapSystem(inject(), 0.75f, inject(), inject<GameSettings>().AspectRatio))
             addSystem(CameraFollowSystem(inject(), 0.5f))
-//            addSystem(BuoyancySystem())
             addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())
             addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))

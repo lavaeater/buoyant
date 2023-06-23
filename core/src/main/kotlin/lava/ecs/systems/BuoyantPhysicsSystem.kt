@@ -53,7 +53,7 @@ Our water is also just a horizontal line, very easy indeed.
                     if(dragDot < 0f)
                         continue
 
-                    val dragMag = dragDot * edgeLength * contact.waterFixture.density * velocity.pow(2)
+                    val dragMag = dragDot * edgeLength * contact.waterFixture.density.pow(2) * velocity.pow(2)
                     val dragForce =-velDir.scl(dragMag)
                     contact.buoyantFixture.body.applyForce(dragForce, midPoint, true)
                 }
