@@ -13,6 +13,7 @@ import ktx.math.vec3
 import lava.core.BuoyantGame
 import lava.core.EntityFactory
 import lava.core.GameSettings
+import lava.core.GameState
 import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
 import lava.ui.ToolHud
@@ -21,7 +22,7 @@ import twodee.input.CommandMap
 import twodee.screens.BasicScreen
 
 class GameScreen(
-    game: BuoyantGame,
+    private val game: BuoyantGame,
     private val gameSettings: GameSettings,
     private val entityFactory: EntityFactory,
     private val inputMultiplexer: InputMultiplexer,
@@ -147,9 +148,19 @@ class GameScreen(
 
     override fun show() {
         super.show()
-        if (needsLevel)
+        if (game.gameState == GameState.GameStart) {
             entityFactory.createMap("two")
-        needsLevel = false
+            engine().systems.forEach { it.setProcessing(true) }
+            game.gameState = GameState.Playing
+        }
+    }
+
+    override fun hide() {
+        super.hide()
+        if(game.gameState == GameState.GameOver || game.gameState == GameState.GameVictory) {
+            engine().systems.forEach { it.setProcessing(false) }
+            engine().removeAllEntities()
+        }
     }
 
     override fun dispose() {

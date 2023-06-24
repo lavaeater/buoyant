@@ -17,10 +17,7 @@ import ktx.assets.toInternalFile
 import ktx.box2d.createWorld
 import ktx.math.vec2
 import ktx.scene2d.Scene2DSkin
-import lava.ecs.systems.BuoyantPhysicsSystem
-import lava.ecs.systems.DiveControlSystem
-import lava.ecs.systems.HeadUnderWaterSystem
-import lava.ecs.systems.RenderSystem
+import lava.ecs.systems.*
 import lava.screens.GameScreen
 import lava.ui.ToolHud
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -98,6 +95,7 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject()))
             addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(UpdateMemorySystem())
+            addSystem(DeathSystem(inject()))
             addSystem(LogSystem())
         }
     }

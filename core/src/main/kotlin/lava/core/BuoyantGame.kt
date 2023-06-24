@@ -9,6 +9,7 @@ import twodee.injection.InjectionContext.Companion.inject
 
 sealed class GameState {
     object Splash : GameState()
+    object GameStart: GameState()
     object Playing : GameState()
     object GameOver : GameState()
     object GameVictory : GameState()
@@ -20,11 +21,11 @@ class BuoyantGame : MainGame() {
 
     override fun goToGameSelect() {
         gameState = GameState.Splash
-        setScreen<GameScreen>()
+        setScreen<SplashScreen>()
      }
 
     override fun goToGameScreen() {
-        gameState = GameState.Playing
+        gameState = GameState.GameStart
         setScreen<GameScreen>()
     }
 
