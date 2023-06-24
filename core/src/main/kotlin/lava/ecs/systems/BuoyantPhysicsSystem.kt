@@ -57,7 +57,7 @@ Our water is also just a horizontal line, very easy indeed.
                     val dragForce =-velDir.scl(dragMag)
                     contact.buoyantFixture.body.applyForce(dragForce, midPoint, true)
 
-                    val angularDrag = intersectionData.area.pow(2) * -contact.buoyantFixture.body.angularVelocity
+                    val angularDrag = intersectionData.area * -contact.buoyantFixture.body.angularVelocity
                     contact.buoyantFixture.body.applyTorque(angularDrag, true)
                 }
             }

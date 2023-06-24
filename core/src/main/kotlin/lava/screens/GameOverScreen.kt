@@ -5,9 +5,6 @@ import lava.core.BuoyantGame
 import twodee.input.CommandMap
 import twodee.screens.BasicScreen
 
-GameState
-
-
 class GameOverScreen(game: BuoyantGame) : BasicScreen(game) {
     init {
         commandMap = CommandMap("GameOver").apply {
