@@ -1,25 +1,41 @@
 package lava.core
 
 import ktx.async.KtxAsync
+import lava.screens.GameOverScreen
 import lava.screens.GameScreen
+import lava.screens.SplashScreen
 import twodee.core.MainGame
 import twodee.injection.InjectionContext.Companion.inject
 
+sealed class GameState {
+    object Splash : GameState()
+    object Playing : GameState()
+    object GameOver : GameState()
+    object GameVictory : GameState()
+}
+
 class BuoyantGame : MainGame() {
+
+    var gameState:GameState = GameState.Splash
+
     override fun goToGameSelect() {
-        TODO("Not yet implemented")
-    }
+        gameState = GameState.Splash
+        setScreen<GameScreen>()
+     }
 
     override fun goToGameScreen() {
-        TODO("Not yet implemented")
+        gameState = GameState.Playing
+        setScreen<GameScreen>()
     }
 
     override fun goToGameOver() {
-        TODO("Not yet implemented")
+        gameState = GameState.GameOver
+        setScreen<GameOverScreen>()
     }
 
     override fun gotoGameVictory() {
-        TODO("Not yet implemented")
+        gameState = GameState.GameVictory
+        setScreen<GameOverScreen>()
     }
 
     override fun create() {
@@ -27,7 +43,9 @@ class BuoyantGame : MainGame() {
         Context.initialize(this)
 
         addScreen(inject<GameScreen>())
-        setScreen<GameScreen>()
+        addScreen(GameOverScreen(this))
+        addScreen(SplashScreen(this))
+        setScreen<SplashScreen>()
     }
 }
 
