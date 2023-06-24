@@ -64,10 +64,10 @@ class EntityFactory(
                     angularDamping = 0.5f
                     box(width, height * 1.5f, vec2(0f, 0f)) {
                         userData = "legs"
-                        density = 0.15f
+                        density = 1f
                         filter {
-                            categoryBits = Categories.head
-                            maskBits = Categories.whatHeadsCollideWith
+                            categoryBits = Categories.bodies
+                            maskBits = Categories.whatBodiesCollideWith
                         }
                     }
                 }
