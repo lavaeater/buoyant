@@ -21,7 +21,7 @@ class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, privat
 Our water is also just a horizontal line, very easy indeed.
          */
 
-        for (contact in BuoyancySet.overlappingFixtures) {
+        for (contact in BuoyancySet.buoyancyStuff) {
             val intersectionData = findIntersection(contact.waterFixture, contact.buoyantFixture)
             if (intersectionData.under) {
                 val displacedMass = contact.waterFixture.density * intersectionData.area

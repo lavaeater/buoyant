@@ -2,7 +2,9 @@ package lava.core
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.ConvexHull
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
@@ -11,13 +13,16 @@ import com.badlogic.gdx.physics.box2d.World
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.*
+import ktx.math.minus
 import ktx.math.plus
 import ktx.math.vec2
 import lava.ecs.components.*
+import twodee.core.world
 import twodee.ecs.ashley.components.Box2d
 import twodee.ecs.ashley.components.CameraFollow
 import twodee.ecs.ashley.components.LDtkMap
 import twodee.ecs.ashley.components.TransformComponent
+import twodee.injection.InjectionContext
 
 class EntityFactory(
     private val engine: Engine,
@@ -72,7 +77,7 @@ class EntityFactory(
                     }
                 }
                 body.revoluteJointWith(bodies["legs"]!!) {
-                    localAnchorA.set(0f, -height /2f)
+                    localAnchorA.set(0f, -height / 2f)
                     localAnchorB.set(0f, height * 1.5f / 2f)
                     collideConnected = false
                     enableLimit = true
@@ -141,15 +146,18 @@ class EntityFactory(
                     textureRegion.regionHeight.toFloat() - 2 * gridSize
                 )
             }
-            createBounds(mapAssets.second, gridSize, mapOffset, LDtkMap)
+            addPoints(mapAssets.second, gridSize, mapOffset, LDtkMap)
+            createBounds(gridSize, mapOffset, LDtkMap)
+            createWater(gridSize, mapOffset, LDtkMap)
+            createPlayerEntity(
+                LDtkMap.points[TypeOfPoint.PlayerStart]!!.random()
+                    .rotateAroundDeg(LDtkMap.mapOrigin, LDtkMap.mapRotation), 1f, 2.5f
+            )
         }
         return LDtkMap
     }
 
-    fun createBounds(intLayer: String, tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
-        /*
-        To make it super easy, we just create a square per int-tile in the layer.
-         */
+    private fun addPoints(intLayer: String, tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
         intLayer.lines().reversed().forEachIndexed { y, l ->
             l.split(',').forEachIndexed { x, c ->
                 if (TypeOfPoint.allTypes.containsKey(c)) {
@@ -166,12 +174,93 @@ class EntityFactory(
                 }
             }
         }
+    }
 
-        for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
-            bound.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+    fun createWater(tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
+
+        /**
+         * We want to create shared edges. Oh yeah!
+         *
+         * We create a bunch of rectangles, then we get to work!
+         *
+         */
+        val offset = tileSize / 2f
+
+        val topLeft = vec2(-offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val topRight = vec2(offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val bottomRight = vec2(offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val bottomLeft = vec2(-offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val waterPolygons = mutableListOf<Polygon>()
+        val points = mutableListOf<Vector2>()
+        lDtkMap.points[TypeOfPoint.BlobStart]!!.forEach { water ->
+            val waterTile = Polygon(
+                floatArrayOf(
+                    water.x + topLeft.x, // top left
+                    water.y + topLeft.y, // top left
+                    water.x + topRight.x, // top right
+                    water.y + topRight.y, // top right
+                    water.x + bottomRight.x, // bottom right
+                    water.y + bottomRight.y, // bottom right
+                    water.x + bottomLeft.x, // bottom left
+                    water.y + bottomLeft.y  //bottom left
+                )
+            )
+            waterPolygons.add(waterTile)
+        }
+        val convexHull = ConvexHull()
+
+        val hull = convexHull.computePolygon(
+            (waterPolygons.flatMap { polygon -> polygon.vertices.toList() } + waterPolygons.first().vertices.toList()).toFloatArray(),
+            false
+        ).toArray().toList()
+
+        hull.indices.step(2).forEach { v ->
+            points.add(vec2(hull[v], hull[v + 1]))
         }
 
+        for (point in points) {
+            point.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+        }
+
+        createWaterEntity(points)
+
+
+        /*
+        Nice. Split the points so that the polygons always end up as more than three, less
+        than 8
+
+        we also always need to wrap around, of course.
+         */
+
+//            var step = (points.size - 1).factorDivisor(3..8)
+//            if(step == -1) {
+//                val what = "WHAT"
+//                /*
+//                Basically just step with a step of three and don't care so much
+//
+//                 */
+//            } else {
+//                points.indices.step(step).forEach { p ->
+//                    if(p + step < points.size)
+//                        createWaterEntity(points.subList(p, p + step))
+//                    else {
+//                        val subList = points.subList(p, points.size)
+//                        val remaingingPoints = points.subList(0, step - subList.size)
+//                        createWaterEntity(remaingingPoints + subList)
+//                    }
+//                }
+//            }
+
+
+    }
+
+
+    fun createBounds(tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
+        /*
+        To make it super easy, we just create a square per int-tile in the layer.
+         */
         for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
+            bound.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
             lDtkMap.mapBodies.add(world.body {
                 type = BodyDef.BodyType.StaticBody
                 position.set(
@@ -188,10 +277,90 @@ class EntityFactory(
             })
         }
     }
+
+    private var needsWaterLine = true
+    private val waterLine = mutableListOf<Vector2>()
+
+    fun getWaterLine(map: LDtkMap): List<Vector2> {
+        if (needsWaterLine) {
+            val bounds = map.points[TypeOfPoint.Impassable]!!
+            val topLeft = bounds.maxBy { it.y }
+            val topRight = bounds.maxBy { it.x }
+            val bottomLeft = bounds.minBy { it.x }
+            val bottomRight = bounds.minBy { it.y }
+
+            val topMiddle = topLeft - (topLeft - topRight).scl(0.5f)
+            val bottomMiddle = bottomLeft - (bottomLeft - bottomRight).scl(0.5f)
+
+            val eighty = topMiddle + (bottomMiddle - topMiddle).scl(0.10f)
+
+            waterLine.add(topLeft)
+            waterLine.add(topRight)
+
+
+            val toAdd = vec2(map.gridSize / 2f, map.gridSize / 2f)
+            toAdd.rotateDeg(map.mapRotation)
+
+            bottomLeft.add(toAdd)
+
+            waterLine.add(bottomLeft)
+            toAdd.set(-map.gridSize / 2f, map.gridSize / 2f)
+            toAdd.rotateDeg(map.mapRotation)
+            bottomRight.add(toAdd)
+
+            waterLine.add(bottomRight)
+
+            waterLine.add(topMiddle)
+            waterLine.add(bottomMiddle)
+            waterLine.add(eighty)
+
+            /*
+            RayCAST
+             */
+
+            val rightWall = vec2()
+            val leftWall = vec2()
+
+            var lastFraction = 1f
+            world().rayCast(eighty, eighty + Vector2.X.cpy().scl(100f)) { fixture, point, normal, fraction ->
+                if (fraction < lastFraction) {
+                    lastFraction = fraction
+                    rightWall.set(point)
+                }
+                RayCast.CONTINUE
+            }
+            waterLine.add(rightWall)
+            lastFraction = 1f
+            world().rayCast(rightWall, rightWall + Vector2.X.cpy().scl(-100f)) { fixture, point, normal, fraction ->
+                if (fraction < lastFraction) {
+                    lastFraction = fraction
+                    leftWall.set(point)
+                }
+                RayCast.CONTINUE
+            }
+            waterLine.add(leftWall)
+
+            InjectionContext.inject<EntityFactory>()
+                .createWaterEntity(listOf(leftWall, rightWall, bottomRight, bottomLeft))
+            InjectionContext.inject<EntityFactory>().createPlayerEntity(eighty, 1f, 2.5f)
+//            inject<EntityFactory>().createPlayerEntity(vec2(eighty.x, eighty.y - 0.5f), 1f, 2.5f)
+
+            needsWaterLine = false
+        }
+        return waterLine
+    }
 }
 
-private fun Float.toRadians(): Float {
+fun Float.toRadians(): Float {
     return this * MathUtils.degreesToRadians
+}
+
+fun Int.factorDivisor(range: IntRange): Int {
+    for (divisor in range) {
+        if (this % divisor == 0)
+            return divisor
+    }
+    return -1
 }
 
 

@@ -104,7 +104,7 @@ object Context : InjectionContext() {
 }
 
 object BuoyancySet {
-    val overlappingFixtures = mutableSetOf<ContactType.Buoyancy>()
+    val buoyancyStuff = mutableSetOf<ContactType.Buoyancy>()
 }
 
 sealed class ContactType {
@@ -132,14 +132,14 @@ class CollisionManager : ContactListener {
     override fun beginContact(contact: Contact) {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
-            is ContactType.Buoyancy -> BuoyancySet.overlappingFixtures.add(contactType)
+            is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
         }
     }
 
     override fun endContact(contact: Contact) {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
-            is ContactType.Buoyancy -> BuoyancySet.overlappingFixtures.remove(contactType)
+            is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.remove(contactType)
         }
     }
 
