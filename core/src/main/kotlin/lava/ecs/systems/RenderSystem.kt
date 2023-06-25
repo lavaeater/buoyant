@@ -96,77 +96,9 @@ class RenderSystem(
         shapeDrawer.setColor(polygonColor)
         shapeDrawer.filledPolygon(polygonComponent.polygon)
         shapeDrawer.setColor(Color.WHITE)
-    }
-
-    private var needsWaterLine = true
-    private val waterLine = mutableListOf<Vector2>()
-
-    fun getWaterLine(map: LDtkMap): List<Vector2> {
-        if(needsWaterLine) {
-            val bounds = map.points[TypeOfPoint.Impassable]!!
-            val topLeft = bounds.maxBy { it.y }
-            val topRight = bounds.maxBy { it.x }
-            val bottomLeft = bounds.minBy { it.x }
-            val bottomRight = bounds.minBy { it.y }
-
-            val topMiddle = topLeft - (topLeft - topRight).scl(0.5f)
-            val bottomMiddle = bottomLeft - (bottomLeft - bottomRight).scl(0.5f)
-
-            val eighty = topMiddle + ( bottomMiddle - topMiddle).scl(0.10f)
-
-            waterLine.add(topLeft)
-            waterLine.add(topRight)
-
-
-            val toAdd = vec2(map.gridSize / 2f, map.gridSize / 2f)
-            toAdd.rotateDeg(map.mapRotation)
-
-            bottomLeft.add(toAdd)
-
-            waterLine.add(bottomLeft)
-            toAdd.set(-map.gridSize / 2f, map.gridSize / 2f)
-            toAdd.rotateDeg(map.mapRotation)
-            bottomRight.add(toAdd)
-
-            waterLine.add(bottomRight)
-
-            waterLine.add(topMiddle)
-            waterLine.add(bottomMiddle)
-            waterLine.add(eighty)
-
-            /*
-            RayCAST
-             */
-
-            val rightWall = vec2()
-            val leftWall = vec2()
-
-            var lastFraction = 1f
-            world().rayCast(eighty, eighty + Vector2.X.cpy().scl(100f) ) { fixture, point, normal, fraction ->
-                if(fraction < lastFraction) {
-                    lastFraction = fraction
-                    rightWall.set(point)
-                }
-                RayCast.CONTINUE
-            }
-            waterLine.add(rightWall)
-            lastFraction = 1f
-            world().rayCast(rightWall, rightWall + Vector2.X.cpy().scl(-100f) ) { fixture, point, normal, fraction ->
-                if(fraction < lastFraction) {
-                    lastFraction = fraction
-                    leftWall.set(point)
-                }
-                RayCast.CONTINUE
-            }
-            waterLine.add(leftWall)
-
-            inject<EntityFactory>().createWaterEntity(listOf(leftWall, rightWall, bottomRight, bottomLeft))
-            inject<EntityFactory>().createPlayerEntity(eighty, 1f, 2.5f)
-//            inject<EntityFactory>().createPlayerEntity(vec2(eighty.x, eighty.y - 0.5f), 1f, 2.5f)
-
-            needsWaterLine = false
+        for(v in polygonComponent.polygon.transformedVectors()) {
+            shapeDrawer.filledCircle(v, 0.4f)
         }
-        return waterLine
     }
 
     private fun renderDebugStuff(mapEntity: Entity) {
@@ -174,17 +106,10 @@ class RenderSystem(
         for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
             shapeDrawer.filledCircle(bound, 1f, Color.RED)
         }
-        for (point in getWaterLine(lDtkMap)) {
-            shapeDrawer.filledCircle(point, 1f, Color.BLUE)
-        }
-        if(getWaterLine(lDtkMap).size == 2) {
-            shapeDrawer.line(getWaterLine(lDtkMap).first(), getWaterLine(lDtkMap).last(), Color.BLUE)
-        }
     }
 
     private fun renderMap(entity: Entity) {
         val lDtkMap = LDtkMap.get(entity)
-        getWaterLine(lDtkMap)
         batch.draw(
             lDtkMap.mapTextureRegion,
             lDtkMap.mapOrigin.x,
