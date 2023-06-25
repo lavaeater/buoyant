@@ -12,7 +12,7 @@ import twodee.ecs.ashley.components.Box2d
 class HeadUnderWaterSystem:IteratingSystem(allOf(Box2d::class, DiveControl::class).get()) {
 
     private val waterFamily = allOf(Box2d::class, WaterComponent::class).get()
-    private val waterEntity get() = engine.getEntitiesFor(waterFamily).first()
+    private val waterEntities get() = engine.getEntitiesFor(waterFamily)
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         /*
@@ -21,8 +21,7 @@ class HeadUnderWaterSystem:IteratingSystem(allOf(Box2d::class, DiveControl::clas
         val box2d = Box2d.get(entity)
         val head = box2d.body.fixtureList.first { it.userData == "head" }.shape as CircleShape
 
-        val waterPolygon = PolygonComponent.get(waterEntity).polygon
         val headPosition = box2d.body.getWorldPoint(head.position)
-        DiveControl.get(entity).isUnderWater = waterPolygon.contains(headPosition.x, headPosition.y)
+        DiveControl.get(entity).isUnderWater = waterEntities.any { PolygonComponent.get(it).polygon.contains(headPosition) }
     }
 }

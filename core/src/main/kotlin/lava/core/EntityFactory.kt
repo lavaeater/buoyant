@@ -4,10 +4,8 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.ConvexHull
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import ktx.ashley.entity
@@ -104,7 +102,7 @@ class EntityFactory(
                     position.set(0f, 0f)
                     polygon(*points.toTypedArray()) {
                         isSensor = true
-                        density = 1f
+                        density = 0.5f
                         filter {
                             categoryBits = Categories.water
                             maskBits = Categories.whatWaterCollidesWith
@@ -190,68 +188,20 @@ class EntityFactory(
         val topRight = vec2(offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
         val bottomRight = vec2(offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
         val bottomLeft = vec2(-offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
-        val waterPolygons = mutableListOf<Polygon>()
-        val points = mutableListOf<Vector2>()
         lDtkMap.points[TypeOfPoint.BlobStart]!!.forEach { water ->
-            val waterTile = Polygon(
-                floatArrayOf(
-                    water.x + topLeft.x, // top left
-                    water.y + topLeft.y, // top left
-                    water.x + topRight.x, // top right
-                    water.y + topRight.y, // top right
-                    water.x + bottomRight.x, // bottom right
-                    water.y + bottomRight.y, // bottom right
-                    water.x + bottomLeft.x, // bottom left
-                    water.y + bottomLeft.y  //bottom left
-                )
+            val points = listOf(
+                vec2(water.x + topLeft.x, water.y + topLeft.y),
+                vec2(water.x + topRight.x, water.y + topRight.y),
+                vec2(water.x + bottomRight.x, water.y + bottomRight.y),
+                vec2(water.x + bottomLeft.x, water.y + bottomLeft.y)
             )
-            waterPolygons.add(waterTile)
+
+            for (point in points) {
+                point.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+            }
+
+            createWaterEntity(points)
         }
-        val convexHull = ConvexHull()
-
-        val hull = convexHull.computePolygon(
-            (waterPolygons.flatMap { polygon -> polygon.vertices.toList() } + waterPolygons.first().vertices.toList()).toFloatArray(),
-            false
-        ).toArray().toList()
-
-        hull.indices.step(2).forEach { v ->
-            points.add(vec2(hull[v], hull[v + 1]))
-        }
-
-        for (point in points) {
-            point.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
-        }
-
-        createWaterEntity(points)
-
-
-        /*
-        Nice. Split the points so that the polygons always end up as more than three, less
-        than 8
-
-        we also always need to wrap around, of course.
-         */
-
-//            var step = (points.size - 1).factorDivisor(3..8)
-//            if(step == -1) {
-//                val what = "WHAT"
-//                /*
-//                Basically just step with a step of three and don't care so much
-//
-//                 */
-//            } else {
-//                points.indices.step(step).forEach { p ->
-//                    if(p + step < points.size)
-//                        createWaterEntity(points.subList(p, p + step))
-//                    else {
-//                        val subList = points.subList(p, points.size)
-//                        val remaingingPoints = points.subList(0, step - subList.size)
-//                        createWaterEntity(remaingingPoints + subList)
-//                    }
-//                }
-//            }
-
-
     }
 
 
