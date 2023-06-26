@@ -92,10 +92,6 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
                     table {
                         // BOTTOM ROW
                         boundLabel({
-                            "Under water: ${diveControl.isUnderWater}"
-                        })
-                        row()
-                        boundLabel({
                             "Air left: ${diveControl.airSupply.toInt()} %"
                         })
                     }
