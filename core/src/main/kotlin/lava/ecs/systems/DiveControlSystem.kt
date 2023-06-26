@@ -3,6 +3,7 @@ package lava.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.CircleShape
 import com.badlogic.gdx.physics.box2d.PolygonShape
@@ -49,6 +50,15 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
 fun Shape.getPosition(): Vector2 {
     if(this is CircleShape) {
         return position.cpy()
+    } else if (this is PolygonShape) {
+        val vertices = mutableListOf<Vector2>()
+        for(i in 0 until this.vertexCount) {
+            val vertex = vec2()
+            getVertex(i, vertex)
+            vertices.add(vertex)
+        }
+        val polygon = Polygon(vertices.flatMap { listOf(it.x, it.y) }.toFloatArray())
+        return polygon.getCentroid(vec2())
     }
     return vec2()
 }

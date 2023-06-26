@@ -59,8 +59,8 @@ object Context : InjectionContext() {
                 setBlurNum(3)
             })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
-            bindSingleton(getEngine(gameSettings))
             bindSingleton(Assets())
+            bindSingleton(getEngine(gameSettings))
             bindSingleton(EntityFactory(inject(), inject(), inject()))
             bindSingleton(InputMultiplexer().apply {
                 Gdx.input.inputProcessor = this
@@ -92,8 +92,8 @@ object Context : InjectionContext() {
             addSystem(SteerSystem())
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
-            addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject()))
-            addSystem(Box2dDebugRenderSystem(inject(), inject()))
+            addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject(), inject()))
+//            addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(UpdateMemorySystem())
             addSystem(DeathSystem(inject()))
             addSystem(LogSystem())

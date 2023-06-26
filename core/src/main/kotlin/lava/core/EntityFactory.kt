@@ -2,7 +2,6 @@ package lava.core
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.ConvexHull
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -16,11 +15,9 @@ import ktx.math.plus
 import ktx.math.vec2
 import lava.ecs.components.*
 import twodee.core.world
-import twodee.ecs.ashley.components.Box2d
-import twodee.ecs.ashley.components.CameraFollow
-import twodee.ecs.ashley.components.LDtkMap
-import twodee.ecs.ashley.components.TransformComponent
+import twodee.ecs.ashley.components.*
 import twodee.injection.InjectionContext
+
 
 class EntityFactory(
     private val engine: Engine,
@@ -32,6 +29,13 @@ class EntityFactory(
         engine.entity {
             with<RenderableComponent> {
                 zIndex = 0
+                typeOfRenderable = TypeOfRenderable.MultiSpritesForFixtures(
+                    mapOf(
+                        BodyPart.Head to assets.bodyParts[BodyPart.Head]!!,
+                        BodyPart.Body to assets.bodyParts[BodyPart.Body]!!,
+                        BodyPart.Legs to assets.bodyParts[BodyPart.Legs]!!
+                    )
+                )
             }
             with<TransformComponent>()
             with<CameraFollow>()
@@ -44,7 +48,7 @@ class EntityFactory(
                     angularDamping = 0.5f
                     box(width, height) {
                         density = 0.1f
-                        userData = "body"
+                        userData = BodyPart.Body
                         filter {
                             categoryBits = Categories.bodies
                             maskBits = Categories.whatBodiesCollideWith
@@ -52,7 +56,7 @@ class EntityFactory(
                     }
                     circle(width / 2f, vec2(0f, height / 2f + width / 2f)) {
                         density = 0.05f
-                        userData = "head"
+                        userData = BodyPart.Head
                         filter {
                             categoryBits = Categories.head
                             maskBits = Categories.whatHeadsCollideWith
@@ -60,13 +64,13 @@ class EntityFactory(
 
                     }
                 }
-                bodies["body"] = body
-                bodies["legs"] = world.body {
+                bodies[BodyPart.Body] = body
+                bodies[BodyPart.Legs] = world.body {
                     type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                     position.set(startPoint + vec2(0f, height - width / 2f))
                     angularDamping = 0.5f
                     box(width, height * 1.5f, vec2(0f, 0f)) {
-                        userData = "legs"
+                        userData = BodyPart.Legs
                         density = 1f
                         filter {
                             categoryBits = Categories.bodies
@@ -74,7 +78,7 @@ class EntityFactory(
                         }
                     }
                 }
-                body.revoluteJointWith(bodies["legs"]!!) {
+                body.revoluteJointWith(bodies[BodyPart.Legs]!!) {
                     localAnchorA.set(0f, -height / 2f)
                     localAnchorB.set(0f, height * 1.5f / 2f)
                     collideConnected = false

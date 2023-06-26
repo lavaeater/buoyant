@@ -7,6 +7,7 @@ import ktx.ashley.allOf
 import lava.ecs.components.DiveControl
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.WaterComponent
+import twodee.ecs.ashley.components.BodyPart
 import twodee.ecs.ashley.components.Box2d
 
 class HeadUnderWaterSystem:IteratingSystem(allOf(Box2d::class, DiveControl::class).get()) {
@@ -19,7 +20,7 @@ class HeadUnderWaterSystem:IteratingSystem(allOf(Box2d::class, DiveControl::clas
         Simply check if the head fixture is inside the water polygon
          */
         val box2d = Box2d.get(entity)
-        val head = box2d.body.fixtureList.first { it.userData == "head" }.shape as CircleShape
+        val head = box2d.body.fixtureList.first { it.userData is BodyPart.Head }.shape as CircleShape
 
         val headPosition = box2d.body.getWorldPoint(head.position)
         DiveControl.get(entity).isUnderWater = waterEntities.any { PolygonComponent.get(it).polygon.contains(headPosition) }

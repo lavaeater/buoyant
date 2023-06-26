@@ -7,6 +7,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.glutils.FrameBuffer
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import ktx.ashley.allOf
 import ktx.graphics.use
@@ -14,14 +15,17 @@ import ktx.math.minus
 import ktx.math.plus
 import ktx.box2d.*
 import ktx.math.vec2
+import lava.core.Assets
 import lava.core.EntityFactory
 import lava.core.GameSettings
 import lava.core.TypeOfPoint
 import lava.ecs.components.DiveControl
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
+import lava.ecs.components.TypeOfRenderable
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.core.world
+import twodee.ecs.ashley.components.BodyPart
 import twodee.ecs.ashley.components.Box2d
 import twodee.ecs.ashley.components.LDtkMap
 import twodee.injection.InjectionContext.Companion.inject
@@ -32,11 +36,13 @@ class RenderSystem(
     private val shapeDrawer: ShapeDrawer,
     private val camera: OrthographicCamera,
     private val gameSettings: GameSettings,
-    private val rayHandler: RayHandler
+    private val rayHandler: RayHandler,
+    private val assets: Assets
 ) : SortedIteratingSystem(allOf(RenderableComponent::class).get(), compareBy {
-    RenderableComponent.get(it).zIndex }
+    RenderableComponent.get(it).zIndex
+}
 ) {
-//    private val shaderProgram by lazy {
+    //    private val shaderProgram by lazy {
 //        val vertexShader = "shaders/vertex.glsl".toInternalFile().readString()
 //        val fragmentShader = "shaders/fragment.glsl".toInternalFile().readString()
 //        ShaderProgram.pedantic = false
@@ -67,15 +73,52 @@ class RenderSystem(
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        if(LDtkMap.has(entity)) {
+        if (LDtkMap.has(entity)) {
             renderMap(entity)
 //            renderDebugStuff(entity)
         }
-        if(PolygonComponent.has(entity)) {
+        if (PolygonComponent.has(entity)) {
             renderPolygon(entity)
         }
-        if(DiveControl.has(entity)) {
+        if (DiveControl.has(entity)) {
             renderDiveControl(entity)
+        }
+        if (RenderableComponent.get(entity).typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
+            renderMultiSprites(entity)
+        }
+    }
+
+    private fun renderMultiSprites(entity: Entity) {
+        val sprites =
+            (RenderableComponent.get(entity).typeOfRenderable as TypeOfRenderable.MultiSpritesForFixtures).sprites
+        val box2d = Box2d.get(entity)
+        val bodies = box2d.bodies
+        val allFixtures = box2d.bodies.values.flatMap { it.fixtureList }.associateBy { (it.userData as BodyPart) }
+        for ((part, fixture) in allFixtures) {
+            val sprite = sprites[part]!!
+            val body = fixture.body
+            val position = body.getWorldPoint(fixture.shape.getPosition()) - vec2(sprite.regionWidth.toFloat() / 2f, sprite.regionHeight.toFloat() / 2f)//.rotateRad(body.angle)
+            val angle = body.angle
+//            val scale = vec2(1f, 1f)
+//                vec2(fixture.shape.radius * 2f / sprite.regionWidth, fixture.shape.radius * 2f / sprite.regionHeight)
+            sprite.setPosition(position.x, position.y)
+            sprite.rotation = angle * MathUtils.radiansToDegrees
+            sprite.setOriginCenter()
+            sprite.setScale(gameSettings.MetersPerPixel)
+            sprite.draw(batch)
+//            batch.draw(
+//                sprite,
+//                position.x,
+//                position.y,
+//                0.5f,
+//                0.5f,
+//                sprite.regionWidth.toFloat(),
+//                sprite.regionHeight.toFloat(),
+//                scale.x,
+//                scale.y,
+//                angle
+//            )
+
         }
     }
 
@@ -96,7 +139,7 @@ class RenderSystem(
         shapeDrawer.setColor(polygonColor)
         shapeDrawer.filledPolygon(polygonComponent.polygon)
         shapeDrawer.setColor(Color.WHITE)
-        for(v in polygonComponent.polygon.transformedVectors()) {
+        for (v in polygonComponent.polygon.transformedVectors()) {
             shapeDrawer.filledCircle(v, 0.4f)
         }
     }
