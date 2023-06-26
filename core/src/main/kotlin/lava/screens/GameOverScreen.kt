@@ -6,23 +6,28 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import ktx.actors.stage
 import ktx.assets.toInternalFile
 import ktx.graphics.use
+import ktx.scene2d.actors
+import ktx.scene2d.label
+import ktx.scene2d.table
 import lava.core.BuoyantGame
 import lava.core.GameSettings
 import lava.core.GameState
 import twodee.injection.InjectionContext
 import twodee.input.CommandMap
 import twodee.screens.BasicScreen
+import twodee.screens.ScreenWithStage
 
 class GameOverScreen(
     private val game: BuoyantGame,
-    camera: OrthographicCamera,
     viewport: Viewport,
     batch: PolygonSpriteBatch
-) : BasicScreen(game, camera, viewport, batch) {
+) : ScreenWithStage(game, viewport, viewport.camera as OrthographicCamera, batch) {
     init {
         commandMap = CommandMap("GameOver").apply {
             setUp(
@@ -36,26 +41,37 @@ class GameOverScreen(
 
     private val winTexture by lazy { Texture("bg-textures/victory.jpg".toInternalFile()) }
     private val deathTexture by lazy { Texture("bg-textures/death.jpg".toInternalFile()) }
+    override val stage: Stage by lazy {
+        stage(batch, viewport).apply {
+            actors {
+                table {
+                    // MAIN TABLE
+                    setFillParent(true)
+                    label("GAME OVER")
+                        .inCell
+                        .grow()
+                        .fill()
+                }
+            }
+        }
+    }
 
-    override fun render(delta: Float) {
-        clearScreenUpdateCamera(delta)
-        batch.use {
-            if (game.gameState == GameState.GameVictory) {
-                batch.draw(
-                    winTexture,
-                    0f, 0f,
-                    viewport.worldWidth,
-                    viewport.worldHeight
-                )
-            }
-            if (game.gameState == GameState.GameOver) {
-                batch.draw(
-                    deathTexture,
-                    0f, 0f,
-                    viewport.worldWidth,
-                    viewport.worldHeight
-                )
-            }
+    override fun renderBatch(delta: Float) {
+        if (game.gameState == GameState.GameVictory) {
+            batch.draw(
+                winTexture,
+                0f, 0f,
+                viewport.worldWidth,
+                viewport.worldHeight
+            )
+        }
+        if (game.gameState == GameState.GameOver) {
+            batch.draw(
+                deathTexture,
+                0f, 0f,
+                viewport.worldWidth,
+                viewport.worldHeight
+            )
         }
     }
 }

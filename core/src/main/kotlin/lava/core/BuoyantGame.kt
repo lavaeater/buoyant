@@ -46,28 +46,24 @@ class BuoyantGame : MainGame() {
         Context.initialize(this)
 
         addScreen(inject<GameScreen>())
-        val newCam1 = OrthographicCamera()
         val gameSettings = inject<GameSettings>()
         addScreen(
             GameOverScreen(
                 this,
-                newCam1,
                 ExtendViewport(
                     gameSettings.GameWidth,
                     gameSettings.GameHeight,
-                    newCam1
+                    OrthographicCamera()
                 ), inject()
             )
         )
-        val newCam2 = OrthographicCamera()
         addScreen(
             SplashScreen(
                 this,
-                newCam2,
                 ExtendViewport(
                     gameSettings.GameWidth,
                     gameSettings.GameHeight,
-                    newCam2
+                    OrthographicCamera()
                 ),
                 inject()
             )

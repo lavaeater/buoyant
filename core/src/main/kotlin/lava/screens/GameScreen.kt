@@ -135,6 +135,10 @@ class GameScreen(
         hud.render(delta)
     }
 
+    override fun renderBatch(delta: Float) {
+        //NO OP FOR THIS CLASS THIS TIME
+    }
+
     private fun updateCamera(delta: Float) {
         if (cameraRotation != 0f) {
             camera.rotate(cameraRotation * delta * 5f)
