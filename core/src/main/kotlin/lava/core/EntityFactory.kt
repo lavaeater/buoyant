@@ -31,11 +31,6 @@ class EntityFactory(
 ) {
 
     fun createPlayerEntity(startPoint: Vector2, width: Float, height: Float) {
-//        PointLight(InjectionContext.inject<RayHandler>(),32, Color.RED, 2.5f, startPoint.x, startPoint.y).apply {
-//            isActive = true
-//        }
-
-
         engine.entity {
             with<RenderableComponent> {
                 zIndex = 0
@@ -109,6 +104,26 @@ class EntityFactory(
         }
     }
 
+    fun createWinArea(points: List<Vector2>) {
+        engine.entity {
+            with<Box2d> {
+                body = world.body {
+                    type = BodyDef.BodyType.StaticBody
+                    position.set(0f, 0f)
+                    polygon(*points.toTypedArray()) {
+                        isSensor = true
+                        density = 0.5f
+                        filter {
+                            categoryBits = Categories.winArea
+                            maskBits = Categories.whatWinAreaCollidesWith
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
     fun createWaterEntity(points: List<Vector2>) {
         engine.entity {
             with<WaterComponent>()
@@ -166,6 +181,7 @@ class EntityFactory(
             addPoints(mapAssets.second, gridSize, mapOffset, LDtkMap)
             createBounds(gridSize, mapOffset, LDtkMap)
             createWater(gridSize, mapOffset, LDtkMap)
+            createWinArea(gridSize, mapOffset, LDtkMap)
 
 
             val startLight = LDtkMap.points[TypeOfPoint.PlayerStart]!!.first().cpy().add(-gridSize / 2f, gridSize / 2f)
@@ -186,6 +202,36 @@ class EntityFactory(
             )
         }
         return LDtkMap
+    }
+
+    private fun createWinArea(gridSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {
+        val offset = gridSize / 2f
+
+        val topLeft = vec2(-offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val topRight = vec2(offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val bottomRight = vec2(offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        val bottomLeft = vec2(-offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
+        (lDtkMap.points[TypeOfPoint.Lights]!!).forEach { winArea ->
+            val points = listOf(
+                vec2(winArea.x + topLeft.x, winArea.y + topLeft.y),
+                vec2(winArea.x + topRight.x, winArea.y + topRight.y),
+                vec2(winArea.x + bottomRight.x, winArea.y + bottomRight.y),
+                vec2(winArea.x + bottomLeft.x, winArea.y + bottomLeft.y)
+            )
+
+            for (point in points) {
+                point.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+            }
+
+            winArea.add(topLeft).rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+            val angle = (-90..-45 step 10).toList().random().toFloat()
+            ConeLight(inject<RayHandler>(), 16, Color(0f, 0.8f, 0f, 0.7f), 50f, winArea.x, winArea.y, angle, 30f).apply {
+                isActive = true
+            }
+
+            createWinArea(points)
+        }
+
     }
 
     private fun addPoints(intLayer: String, tileSize: Float, mapOffset: Vector2, lDtkMap: LDtkMap) {

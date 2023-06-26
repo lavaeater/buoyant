@@ -1,26 +1,20 @@
 package lava.screens
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.actors.stage
 import ktx.assets.toInternalFile
-import ktx.graphics.use
 import ktx.scene2d.actors
 import ktx.scene2d.label
 import ktx.scene2d.table
 import lava.core.BuoyantGame
-import lava.core.GameSettings
 import lava.core.GameState
-import twodee.injection.InjectionContext
+import twodee.extensions.boundLabel
 import twodee.input.CommandMap
-import twodee.screens.BasicScreen
 import twodee.screens.ScreenWithStage
 
 class GameOverScreen(
@@ -47,7 +41,7 @@ class GameOverScreen(
                 table {
                     // MAIN TABLE
                     setFillParent(true)
-                    label("GAME OVER")
+                    boundLabel({ if(game.gameState == GameState.GameVictory) "You made it out." else "YOU DROWNED" })
                         .inCell
                         .grow()
                         .fill()

@@ -1,5 +1,6 @@
 package lava.screens
 
+import box2dLight.RayHandler
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -19,6 +20,7 @@ import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
 import lava.ui.ToolHud
 import twodee.core.engine
+import twodee.injection.InjectionContext.Companion.inject
 import twodee.input.CommandMap
 import twodee.screens.BasicScreen
 
@@ -166,6 +168,7 @@ class GameScreen(
         if(game.gameState == GameState.GameOver || game.gameState == GameState.GameVictory) {
             engine().systems.forEach { it.setProcessing(false) }
             engine().removeAllEntities()
+            inject<RayHandler>().removeAll()
         }
     }
 

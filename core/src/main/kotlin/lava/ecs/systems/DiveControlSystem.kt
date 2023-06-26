@@ -28,22 +28,6 @@ class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class
         if (diveControl.isDiving) {
             val box2d = Box2d.get(entity)
             val body = box2d.body
-//            body.applyTorque(
-//                diveControl.rotationFactor *
-//                    deltaTime *
-//                    diveControl.diveForce *
-//                    MathUtils.lerp(
-//                        0.5f,
-//                        1f,
-//                        MathUtils.norm(
-//                            0f,
-//                            diveControl.strokeTimerDefault,
-//                            diveControl.strokeTimer
-//                        )
-//                    ),
-//                true
-//            )
-
 
             val diveForce = diveControl.diveVector.cpy().scl(diveControl.divingFactor).scl(
                 diveControl.diveForce * MathUtils.lerp(
@@ -64,9 +48,9 @@ class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class
     private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
         if (diveControl.isUnderWater) {
             if (diveControl.hasAny()) {
-                diveControl.airSupply -= deltaTime * 100f
+                diveControl.airSupply -= deltaTime * 2.5f
             } else {
-                diveControl.airSupply -= deltaTime * 5f
+                diveControl.airSupply -= deltaTime * 1f
             }
 
         } else {

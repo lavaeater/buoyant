@@ -23,6 +23,7 @@ import lava.ui.ToolHud
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.ecs.ashley.systems.*
 import twodee.injection.InjectionContext
+import kotlin.experimental.or
 
 object Context : InjectionContext() {
     private val shapeDrawerRegion: TextureRegion by lazy {
@@ -52,7 +53,7 @@ object Context : InjectionContext() {
                 )
             )
             bindSingleton(createWorld(vec2(0f, -10f)).apply {
-                setContactListener(CollisionManager())
+                setContactListener(CollisionManager(game))
             })
             bindSingleton(RayHandler(inject()).apply {
                 setAmbientLight(.1f)
@@ -114,6 +115,7 @@ sealed class ContactType {
     object Unknown : ContactType()
     data class Buoyancy(val waterFixture: Fixture, val buoyantFixture: Fixture) : ContactType()
     data class Bubble(val bubbleFixture: Fixture) : ContactType()
+    object WinArea: ContactType()
     companion object {
         fun getContactType(contact: Contact): ContactType {
             val fixtureA = contact.fixtureA
@@ -135,18 +137,25 @@ sealed class ContactType {
                 return Bubble(fixtureA)
             }
 
+            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.winArea && (fixtureB.filterData.categoryBits == Categories.bodies || fixtureB.filterData.categoryBits == Categories.head)) ||
+                (fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.winArea && (fixtureA.filterData.categoryBits == Categories.bodies || fixtureA.filterData.categoryBits == Categories.head)))
+                return WinArea
+
 
             return Unknown
         }
     }
 }
 
-class CollisionManager : ContactListener {
+class CollisionManager(private val game: BuoyantGame) : ContactListener {
     override fun beginContact(contact: Contact) {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
             is ContactType.Bubble -> BuoyancySet.bubbles.add(contactType)
+            ContactType.WinArea -> {
+                game.gotoGameVictory()
+            }
         }
     }
 
@@ -155,6 +164,7 @@ class CollisionManager : ContactListener {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.remove(contactType)
             is ContactType.Bubble -> BuoyancySet.bubbles.remove(contactType)
+            ContactType.WinArea -> {}
         }
     }
 

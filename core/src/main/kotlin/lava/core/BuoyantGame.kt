@@ -1,6 +1,8 @@
 package lava.core
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.utils.Timer
+import com.badlogic.gdx.utils.Timer.Task
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.async.KtxAsync
 import lava.screens.GameOverScreen
@@ -36,9 +38,18 @@ class BuoyantGame : MainGame() {
         setScreen<GameOverScreen>()
     }
 
+    /**
+     * We should give it a minute. Start a timer, will ya?
+     */
     override fun gotoGameVictory() {
-        gameState = GameState.GameVictory
-        setScreen<GameOverScreen>()
+        Timer.schedule(object: Task() {
+            override fun run() {
+                gameState = GameState.GameVictory
+                setScreen<GameOverScreen>()
+            }
+
+        }, 5f)
+        Timer.instance().start()
     }
 
     override fun create() {

@@ -81,7 +81,7 @@
 			"type": "Tiles",
 			"uid": 2,
 			"doc": null,
-			"uiColor": null,
+			"uiColor": "#CABABA",
 			"gridSize": 8,
 			"guideGridWid": 0,
 			"guideGridHei": 0,
@@ -125,7 +125,7 @@
 			"savedSelections": [],
 			"cachedPixelData": {
 				"opaqueTiles": "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111011111111111111111100",
-				"averageColors": "f111f7a4f7a6f6a4f534f534f443f222f643f645f444f555f655f534f656f746f746f746f375f646fa86f745f474f475f646f256f646f444f366f466f786f988f533f556f322f333f646f576f795f799f465f366f465f677f645f695f233f645fa45f633f743fc32f445f584f646f644f535f556f645fc1dfb1cfd1dff1ff968fa69fe8ffebffe8ffc7cfa59fc4bfa68f876f665f738f939f929fa2afb2bfb2bf93afa3af388f367f9cdf69af346f576f365f256f375f222f399f377f222f699f353f445f699fa1afa1afa1afb1bf343f355f9bcf233f223f342f625fe8ff343f343f343f544f5b8f4d8f5d800000000"
+				"averageColors": "f000f7a4f7a6f6a4f534f534f443f222f643f645f444f555f655f534f656f746f746f746f375f646fa86f745f474f475f646f256f646f444f366f466f786f988f533f556f322f333f646f576f795f799f465f366f465f677f645f695f233f645fa45f633f743fc32f445f584f646f644f535f556f645fc1dfb1cfd1dff1ff968fa69fe8ffebffe8ffc7cfa59fc4bfa68f876f665f738f939f929fa2afb2bfb2bf93afa3af388f367f9cdf69af346f576f365f256f375f222f399f377f222f699f353f445f699fa1afa1afa1afb1bf343f355f9bcf233f223f342f625fe8ff343f343f343f544f5b8f4d8f5d800000000"
 			}
 		}
 	], "enums": [], "externalEnums": [], "levelFields": [] },
@@ -139,14 +139,14 @@
 			"worldDepth": 0,
 			"pxWid": 216,
 			"pxHei": 280,
-			"__bgColor": "#000000",
-			"bgColor": "#000000",
+			"__bgColor": "#696A79",
+			"bgColor": null,
 			"useAutoIdentifier": true,
 			"bgRelPath": null,
 			"bgPos": null,
 			"bgPivotX": 0.5,
 			"bgPivotY": 0.5,
-			"__smartColor": "#737373",
+			"__smartColor": "#ADADB5",
 			"__bgPos": null,
 			"externalRelPath": "shafts/Level_0.ldtkl",
 			"fieldInstances": [],
