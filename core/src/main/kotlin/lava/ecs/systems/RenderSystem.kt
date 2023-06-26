@@ -104,8 +104,15 @@ class RenderSystem(
             sprite.setOriginCenter()
             sprite.setScale(gameSettings.MetersPerPixel)
             sprite.draw(batch)
-
         }
+        val diveControl = DiveControl.get(entity)
+        val sprite = assets.arm
+        val armPosition =  box2d.body.getWorldPoint(vec2(0f, 0.75f))
+        sprite.setScale(gameSettings.MetersPerPixel)
+        sprite.setOrigin(0f, 0f)
+        sprite.setPosition(armPosition.x, armPosition.y)
+        sprite.rotation = diveControl.diveVector.angleDeg() - 90f
+        sprite.draw(batch)
     }
 
     private fun renderDiveControl(entity: Entity) {

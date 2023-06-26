@@ -8,7 +8,7 @@ import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class DiveControl: Component, Pool.Poolable {
-    var rotationSpeed = 45f
+    var rotationSpeed = 90f
     var strokeTimerDefault = 2f
     val diveForceAnchor = vec2()
     val directions = mutableSetOf<Direction>()

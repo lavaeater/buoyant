@@ -81,7 +81,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
-            addSystem(CrazyCameraSystem(inject(), 0.5f))
+            addSystem(CrazyCameraSystem(inject(), 0.1f))
             addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())
             addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))

@@ -25,6 +25,7 @@ class Assets : DisposableRegistry by DisposableContainer() {
     private val head = Sprite(Texture("sprites/head.png".toInternalFile()))
     private val body = Sprite(Texture("sprites/body.png".toInternalFile()))
     private val leg = Sprite(Texture("sprites/leg.png".toInternalFile()))
+    val arm = Sprite(Texture("sprites/arms.png".toInternalFile()))
 
     val bodyParts by lazy {
         mapOf(
