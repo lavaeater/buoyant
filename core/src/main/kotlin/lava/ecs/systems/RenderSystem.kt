@@ -37,7 +37,8 @@ class RenderSystem(
     private val camera: OrthographicCamera,
     private val gameSettings: GameSettings,
     private val rayHandler: RayHandler,
-    private val assets: Assets
+    private val assets: Assets,
+    private val debug: Boolean = false
 ) : SortedIteratingSystem(allOf(RenderableComponent::class).get(), compareBy {
     RenderableComponent.get(it).zIndex
 }
@@ -48,7 +49,6 @@ class RenderSystem(
 //        ShaderProgram.pedantic = false
 //        ShaderProgram(vertexShader, fragmentShader)
 //    }
-    private val LDtkMapFamily = allOf(LDtkMap::class).get()
 
     private val fbo by lazy {
         FrameBuffer(
@@ -75,12 +75,11 @@ class RenderSystem(
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if (LDtkMap.has(entity)) {
             renderMap(entity)
-//            renderDebugStuff(entity)
         }
         if (PolygonComponent.has(entity)) {
             renderPolygon(entity)
         }
-        if (DiveControl.has(entity)) {
+        if (DiveControl.has(entity) && debug) {
             renderDiveControl(entity)
         }
         if (RenderableComponent.get(entity).typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
@@ -130,8 +129,10 @@ class RenderSystem(
         shapeDrawer.setColor(polygonColor)
         shapeDrawer.filledPolygon(polygonComponent.polygon)
         shapeDrawer.setColor(Color.WHITE)
-        for (v in polygonComponent.polygon.transformedVectors()) {
-            shapeDrawer.filledCircle(v, 0.4f)
+        if(debug) {
+            for (v in polygonComponent.polygon.transformedVectors()) {
+                shapeDrawer.filledCircle(v, 0.4f)
+            }
         }
     }
 
