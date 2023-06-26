@@ -6,10 +6,13 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.ashley.allOf
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.collections.GdxArray
+import ktx.collections.gdxArrayOf
 import ktx.log.info
 import ktx.math.vec2
 import ktx.math.vec3
@@ -20,6 +23,7 @@ import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
 import lava.ui.ToolHud
 import twodee.core.engine
+import twodee.core.world
 import twodee.injection.InjectionContext.Companion.inject
 import twodee.input.CommandMap
 import twodee.screens.BasicScreen
@@ -129,10 +133,8 @@ class GameScreen(
         )
     }
 
-    private var needsLevel = true
-
     override fun render(delta: Float) {
-        updateCamera(delta)
+//        updateCamera(delta)
         engine().update(delta)
         hud.render(delta)
     }
@@ -168,6 +170,11 @@ class GameScreen(
         if(game.gameState == GameState.GameOver || game.gameState == GameState.GameVictory) {
             engine().systems.forEach { it.setProcessing(false) }
             engine().removeAllEntities()
+            val bodyArray = gdxArrayOf<Body>(false, world().bodyCount)
+            world().getBodies(bodyArray)
+            bodyArray.forEach { body ->
+                world().destroyBody(body)
+            }
             inject<RayHandler>().removeAll()
         }
     }

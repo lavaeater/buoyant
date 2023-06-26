@@ -19,7 +19,7 @@ class CrazyCameraSystem(camera: OrthographicCamera, alpha: Float) : CameraFollow
         val position = TransformComponent.get(entity).position
         directionVector.setAngleDeg(TransformComponent.get(entity).angleDegrees)
         val reverseDirection = directionVector.cpy()
-        cameraPosition.set(position + reverseDirection.scl(5f))
+        cameraPosition.set(position + reverseDirection.scl(2.5f))
 
         camera.position.lerp(
             vec3(cameraPosition, 0f), alpha

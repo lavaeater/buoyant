@@ -17,6 +17,7 @@ sealed class GameState {
     object Playing : GameState()
     object GameOver : GameState()
     object GameVictory : GameState()
+    object WaitForVictory : GameState()
 }
 
 class BuoyantGame : MainGame() {
@@ -42,14 +43,16 @@ class BuoyantGame : MainGame() {
      * We should give it a minute. Start a timer, will ya?
      */
     override fun gotoGameVictory() {
-        Timer.schedule(object: Task() {
-            override fun run() {
-                gameState = GameState.GameVictory
-                setScreen<GameOverScreen>()
-            }
+        if( gameState == GameState.Playing) {
+            gameState = GameState.WaitForVictory
+            Timer.schedule(object : Task() {
+                override fun run() {
+                    gameState = GameState.GameVictory
+                    setScreen<GameOverScreen>()
+                }
 
-        }, 5f)
-        Timer.instance().start()
+            }, 2.5f)
+        }
     }
 
     override fun create() {

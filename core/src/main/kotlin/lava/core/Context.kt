@@ -3,6 +3,7 @@ package lava.core
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.*
@@ -43,7 +44,7 @@ object Context : InjectionContext() {
             bindSingleton(game)
             bindSingleton(PolygonSpriteBatch())
             bindSingleton(OrthographicCamera().apply {
-                zoom = 0.16f
+                zoom = 0.12f
             })
             bindSingleton(
                 ExtendViewport(
@@ -154,7 +155,9 @@ class CollisionManager(private val game: BuoyantGame) : ContactListener {
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
             is ContactType.Bubble -> BuoyancySet.bubbles.add(contactType)
             ContactType.WinArea -> {
-                game.gotoGameVictory()
+                if(game.gameState == GameState.Playing) {
+                    game.gotoGameVictory()
+                }
             }
         }
     }
