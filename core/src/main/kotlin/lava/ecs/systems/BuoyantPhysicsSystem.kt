@@ -1,18 +1,23 @@
 package lava.ecs.systems
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Fixture
 import com.badlogic.gdx.physics.box2d.Shape
 import com.badlogic.gdx.physics.box2d.World
+import ktx.ashley.allOf
 import ktx.math.*
 import lava.core.BuoyancySet
+import lava.ecs.components.BubbleComponent
+import twodee.ecs.ashley.components.Box2d
 import twodee.ecs.ashley.systems.Box2dUpdateSystem
 import kotlin.math.pow
 
 class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, private val world: World) :
-    Box2dUpdateSystem(timeStep, velIters, posIters) {
+    Box2dUpdateSystem(timeStep, velIters, posIters)
+{
     override fun everyTimeStep(deltaTime: Float) {
 
         /*
@@ -20,6 +25,25 @@ class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, privat
 
 Our water is also just a horizontal line, very easy indeed.
          */
+        for(contact in BuoyancySet.bubbles) {
+            val body = contact.bubbleFixture.body
+            val entity = body.userData as Entity
+            val bubbleFixture = body.fixtureList.first()
+            val bubbleComponent = BubbleComponent.get(entity)
+            val displacedMass = bubbleFixture.density * bubbleComponent.radius.pow(2) * Math.PI.toFloat()
+            val buoyancyForce = world.gravity.cpy().scl(-1f).scl(displacedMass)
+            body.applyForce(buoyancyForce, body.worldCenter, true)
+
+            // Bubble drag
+//            val velDir = body.linearVelocity.cpy()
+//            val vel = velDir.len()
+//            velDir.nor()
+//
+//            //apply simple linear drag
+//            val dragMag = bubbleFixture.density * vel
+//            val dragForce = velDir.scl(-1f).scl(dragMag).scl(0.5f)
+//            body.applyForce( dragForce, body.worldCenter, true)
+        }
 
         for (contact in BuoyancySet.buoyancyStuff) {
             val intersectionData = findIntersection(contact.waterFixture, contact.buoyantFixture)

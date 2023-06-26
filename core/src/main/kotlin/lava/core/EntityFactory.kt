@@ -48,6 +48,8 @@ class EntityFactory(
                 )
             }
             with<TransformComponent>()
+            //Get back to bubbles later, mate!
+//            with<BubbleEmitterComponent>()
             with<CameraFollow>()
             with<Box2d> {
                 body = world.body {
@@ -280,76 +282,34 @@ class EntityFactory(
         }
     }
 
-    private var needsWaterLine = true
-    private val waterLine = mutableListOf<Vector2>()
-
-    fun getWaterLine(map: LDtkMap): List<Vector2> {
-        if (needsWaterLine) {
-            val bounds = map.points[TypeOfPoint.Impassable]!!
-            val topLeft = bounds.maxBy { it.y }
-            val topRight = bounds.maxBy { it.x }
-            val bottomLeft = bounds.minBy { it.x }
-            val bottomRight = bounds.minBy { it.y }
-
-            val topMiddle = topLeft - (topLeft - topRight).scl(0.5f)
-            val bottomMiddle = bottomLeft - (bottomLeft - bottomRight).scl(0.5f)
-
-            val eighty = topMiddle + (bottomMiddle - topMiddle).scl(0.10f)
-
-            waterLine.add(topLeft)
-            waterLine.add(topRight)
-
-
-            val toAdd = vec2(map.gridSize / 2f, map.gridSize / 2f)
-            toAdd.rotateDeg(map.mapRotation)
-
-            bottomLeft.add(toAdd)
-
-            waterLine.add(bottomLeft)
-            toAdd.set(-map.gridSize / 2f, map.gridSize / 2f)
-            toAdd.rotateDeg(map.mapRotation)
-            bottomRight.add(toAdd)
-
-            waterLine.add(bottomRight)
-
-            waterLine.add(topMiddle)
-            waterLine.add(bottomMiddle)
-            waterLine.add(eighty)
-
-            /*
-            RayCAST
-             */
-
-            val rightWall = vec2()
-            val leftWall = vec2()
-
-            var lastFraction = 1f
-            world().rayCast(eighty, eighty + Vector2.X.cpy().scl(100f)) { fixture, point, normal, fraction ->
-                if (fraction < lastFraction) {
-                    lastFraction = fraction
-                    rightWall.set(point)
-                }
-                RayCast.CONTINUE
+    fun emitBubble(startPoint: Vector2, radius: Float) {
+        engine.entity {
+            with<RenderableComponent> {
+                zIndex = 0
+                typeOfRenderable = TypeOfRenderable.RenderableCircle(radius)
             }
-            waterLine.add(rightWall)
-            lastFraction = 1f
-            world().rayCast(rightWall, rightWall + Vector2.X.cpy().scl(-100f)) { fixture, point, normal, fraction ->
-                if (fraction < lastFraction) {
-                    lastFraction = fraction
-                    leftWall.set(point)
+            with<TransformComponent>()
+            with<Box2d> {
+                body = world.body {
+                    type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+                    position.set(startPoint)
+                    userData = this@entity.entity
+                    fixedRotation = false
+                    angularDamping = 0.5f
+                    gravityScale = 0.25f
+                    circle(radius) {
+                        density = 0.01f
+                        filter {
+                            categoryBits = Categories.bubbles
+                            maskBits = Categories.whatBubblesCollideWith
+                        }
+                    }
                 }
-                RayCast.CONTINUE
             }
-            waterLine.add(leftWall)
-
-            InjectionContext.inject<EntityFactory>()
-                .createWaterEntity(listOf(leftWall, rightWall, bottomRight, bottomLeft))
-            InjectionContext.inject<EntityFactory>().createPlayerEntity(eighty, 1f, 2.5f)
-//            inject<EntityFactory>().createPlayerEntity(vec2(eighty.x, eighty.y - 0.5f), 1f, 2.5f)
-
-            needsWaterLine = false
+            with<BubbleComponent> {
+                this.radius = radius
+            }
         }
-        return waterLine
     }
 }
 

@@ -81,6 +81,8 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
+            addSystem(BubbleSystem())
+            addSystem(BubbleLifeSystem())
             addSystem(CrazyCameraSystem(inject(), 0.1f))
             addSystem(PlayerFlashlightSystem())
             addSystem(HeadUnderWaterSystem())
@@ -104,23 +106,34 @@ object Context : InjectionContext() {
 
 object BuoyancySet {
     val buoyancyStuff = mutableSetOf<ContactType.Buoyancy>()
+    val bubbles = mutableSetOf<ContactType.Bubble>()
 }
 
 sealed class ContactType {
     object Unknown : ContactType()
     data class Buoyancy(val waterFixture: Fixture, val buoyantFixture: Fixture) : ContactType()
+    data class Bubble(val bubbleFixture: Fixture) : ContactType()
     companion object {
         fun getContactType(contact: Contact): ContactType {
             val fixtureA = contact.fixtureA
             val fixtureB = contact.fixtureB
 
-            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.body.type == BodyDef.BodyType.DynamicBody) {
+            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.filterData.categoryBits == Categories.bodies) {
                 return Buoyancy(fixtureA, fixtureB)
             }
 
-            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.body.type == BodyDef.BodyType.DynamicBody) {
+            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bodies) {
                 return Buoyancy(fixtureB, fixtureA)
             }
+
+            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.filterData.categoryBits == Categories.bubbles) {
+                return Bubble(fixtureB)
+            }
+
+            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bubbles) {
+                return Bubble(fixtureA)
+            }
+
 
             return Unknown
         }
@@ -132,6 +145,7 @@ class CollisionManager : ContactListener {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
+            is ContactType.Bubble -> BuoyancySet.bubbles.add(contactType)
         }
     }
 
@@ -139,6 +153,7 @@ class CollisionManager : ContactListener {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.remove(contactType)
+            is ContactType.Bubble -> BuoyancySet.bubbles.remove(contactType)
         }
     }
 

@@ -2,6 +2,7 @@ package lava.ecs.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
@@ -9,6 +10,7 @@ import twodee.ecs.ashley.components.BodyPart
 
 sealed class TypeOfRenderable {
     object Whatever: TypeOfRenderable()
+    class RenderableCircle(var radius: Float, var color: Color = Color.WHITE): TypeOfRenderable()
     class MultiSpritesForFixtures(val sprites: Map<BodyPart, Sprite>): TypeOfRenderable()
 }
 

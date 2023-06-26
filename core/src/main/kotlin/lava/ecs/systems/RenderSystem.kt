@@ -82,14 +82,27 @@ class RenderSystem(
         if (DiveControl.has(entity) && debug) {
             renderDiveControl(entity)
         }
-        if (RenderableComponent.get(entity).typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
-            renderMultiSprites(entity)
+        val renderableComponent = RenderableComponent.get(entity)
+        if (renderableComponent.typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
+            renderMultiSprites(entity, renderableComponent.typeOfRenderable as TypeOfRenderable.MultiSpritesForFixtures)
+        }
+        if(renderableComponent.typeOfRenderable is TypeOfRenderable.RenderableCircle) {
+            renderCircle(entity, renderableComponent.typeOfRenderable as TypeOfRenderable.RenderableCircle)
         }
     }
 
-    private fun renderMultiSprites(entity: Entity) {
+    private fun renderCircle(entity: Entity, renderableCircle: TypeOfRenderable.RenderableCircle) {
+        val box2d = Box2d.get(entity)
+        val body = box2d.body
+        val position = body.position
+        val radius = renderableCircle.radius
+        val color = renderableCircle.color
+        shapeDrawer.filledCircle(position, radius, color)
+    }
+
+    private fun renderMultiSprites(entity: Entity, renderableType: TypeOfRenderable.MultiSpritesForFixtures) {
         val sprites =
-            (RenderableComponent.get(entity).typeOfRenderable as TypeOfRenderable.MultiSpritesForFixtures).sprites
+            renderableType.sprites
         val box2d = Box2d.get(entity)
         val bodies = box2d.bodies
         val allFixtures = box2d.bodies.values.flatMap { it.fixtureList }.associateBy { (it.userData as BodyPart) }
