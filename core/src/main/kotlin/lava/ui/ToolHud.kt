@@ -1,6 +1,7 @@
 package lava.ui
 
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import ktx.ashley.allOf
@@ -11,6 +12,7 @@ import ktx.scene2d.verticalGroup
 import lava.ecs.components.DiveControl
 import twodee.core.engine
 import twodee.extensions.boundLabel
+import twodee.extensions.boundProgressBar
 import twodee.ui.LavaHud
 
 class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMultiplexer) : LavaHud(batch, 120f) {
@@ -91,9 +93,14 @@ class ToolHud(batch: PolygonSpriteBatch, private val inputMultiplexer: InputMult
                     row()
                     table {
                         // BOTTOM ROW
-                        boundLabel({
-                            "Air left: ${diveControl.airSupply.toInt()} %"
-                        })
+                        label("Air in lungs")
+                        row()
+                        boundProgressBar({
+                            diveControl.airSupply
+                        }, 0f, 100f, 1f)
+                            .inCell
+                            .expandX()
+                            .fillX()
                     }
                         .inCell
                         .fill()

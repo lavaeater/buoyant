@@ -247,7 +247,7 @@ class EntityFactory(
 
             water.add(-tileSize / 2f, tileSize / 2f).rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
             val angle = (-90..-45 step 10).toList().random().toFloat()
-            ConeLight(inject<RayHandler>(), 16, Color.RED, 50f, water.x, water.y, angle, 20f).apply {
+            ConeLight(inject<RayHandler>(), 16, Color(0.8f, 0f, 0f, 0.7f), 50f, water.x, water.y, angle, 30f).apply {
                 isActive = true
             }
 
