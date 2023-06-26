@@ -1,9 +1,11 @@
 package lava.screens
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.viewport.Viewport
 import ktx.ashley.allOf
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
@@ -12,7 +14,6 @@ import ktx.math.vec2
 import ktx.math.vec3
 import lava.core.BuoyantGame
 import lava.core.EntityFactory
-import lava.core.GameSettings
 import lava.core.GameState
 import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
@@ -23,11 +24,12 @@ import twodee.screens.BasicScreen
 
 class GameScreen(
     private val game: BuoyantGame,
-    private val gameSettings: GameSettings,
     private val entityFactory: EntityFactory,
-    private val inputMultiplexer: InputMultiplexer,
-    private val hud: ToolHud
-) : BasicScreen(game) {
+    private val hud: ToolHud,
+    camera: OrthographicCamera,
+    viewport: Viewport,
+    batch: PolygonSpriteBatch
+) : BasicScreen(game, camera, viewport, batch) {
     init {
         commandMap = CommandMap("Stuff").apply {
             setBoth(

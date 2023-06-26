@@ -64,9 +64,9 @@ class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class
     private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
         if (diveControl.isUnderWater) {
             if (diveControl.hasAny()) {
-                diveControl.airSupply -= deltaTime * 2f
+                diveControl.airSupply -= deltaTime * 100f
             } else {
-                diveControl.airSupply -= deltaTime * 1f
+                diveControl.airSupply -= deltaTime * 5f
             }
 
         } else {

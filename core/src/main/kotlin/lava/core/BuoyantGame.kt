@@ -1,5 +1,7 @@
 package lava.core
 
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.utils.viewport.ExtendViewport
 import ktx.async.KtxAsync
 import lava.screens.GameOverScreen
 import lava.screens.GameScreen
@@ -9,7 +11,7 @@ import twodee.injection.InjectionContext.Companion.inject
 
 sealed class GameState {
     object Splash : GameState()
-    object GameStart: GameState()
+    object GameStart : GameState()
     object Playing : GameState()
     object GameOver : GameState()
     object GameVictory : GameState()
@@ -17,12 +19,12 @@ sealed class GameState {
 
 class BuoyantGame : MainGame() {
 
-    var gameState:GameState = GameState.Splash
+    var gameState: GameState = GameState.Splash
 
     override fun goToGameSelect() {
         gameState = GameState.Splash
         setScreen<SplashScreen>()
-     }
+    }
 
     override fun goToGameScreen() {
         gameState = GameState.GameStart
@@ -44,8 +46,33 @@ class BuoyantGame : MainGame() {
         Context.initialize(this)
 
         addScreen(inject<GameScreen>())
-        addScreen(GameOverScreen(this))
-        addScreen(SplashScreen(this))
+        val newCam1 = OrthographicCamera()
+        val gameSettings = inject<GameSettings>()
+        addScreen(
+            GameOverScreen(
+                this,
+                newCam1,
+                ExtendViewport(
+                    gameSettings.GameWidth,
+                    gameSettings.GameHeight,
+                    newCam1
+                ), inject()
+            )
+        )
+        val newCam2 = OrthographicCamera()
+        addScreen(
+            SplashScreen(
+                this,
+                newCam2,
+                ExtendViewport(
+                    gameSettings.GameWidth,
+                    gameSettings.GameHeight,
+                    newCam2
+                ),
+                inject()
+            )
+        )
+
         setScreen<SplashScreen>()
     }
 }
