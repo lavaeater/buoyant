@@ -14,14 +14,11 @@ object TeaVMBuilder {
             assetsPath.add(File("../assets"))
             webappPath = File("build/dist").canonicalPath
             // Register any extra classpath assets here:
-            // additionalAssetsClasspathFiles += "lava/core/asset.extension"
         }
 
         // Register any classes or packages that require reflection here:
         TeaReflectionSupplier.addReflectionClass("twodee.ecs.ashley.components")
         TeaReflectionSupplier.addReflectionClass("lava.ecs.components")
-//        TeaReflectionSupplier.addReflectionClass("jam.ecs.components")
-//        TeaReflectionSupplier.addReflectionClass(Box2dSteerable::class.java)
 
         val tool = TeaBuilder.config(teaBuildConfiguration)
         tool.mainClass = "lava.core.teavm.TeaVMLauncher"

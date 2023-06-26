@@ -9,8 +9,8 @@ import lava.core.BuoyantGame
 /** Launches the TeaVM/HTML application. */
 fun main() {
     val config = TeaApplicationConfiguration("canvas").apply {
-        width = 640
-        height = 480
+        width = 0
+        height = 0
     }
     TeaApplication(BuoyantGame(), config)
 }
