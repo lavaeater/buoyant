@@ -55,7 +55,7 @@ object Context : InjectionContext() {
                 setContactListener(CollisionManager())
             })
             bindSingleton(RayHandler(inject()).apply {
-                setAmbientLight(.01f)
+                setAmbientLight(.05f)
                 setBlurNum(3)
             })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
@@ -82,6 +82,7 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
             addSystem(CrazyCameraSystem(inject(), 0.1f))
+            addSystem(PlayerFlashlightSystem())
             addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())
             addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))

@@ -1,6 +1,10 @@
 package lava.core
 
+import box2dLight.ConeLight
+import box2dLight.PointLight
+import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
@@ -17,6 +21,7 @@ import lava.ecs.components.*
 import twodee.core.world
 import twodee.ecs.ashley.components.*
 import twodee.injection.InjectionContext
+import twodee.injection.InjectionContext.Companion.inject
 
 
 class EntityFactory(
@@ -26,6 +31,11 @@ class EntityFactory(
 ) {
 
     fun createPlayerEntity(startPoint: Vector2, width: Float, height: Float) {
+//        PointLight(InjectionContext.inject<RayHandler>(),32, Color.RED, 2.5f, startPoint.x, startPoint.y).apply {
+//            isActive = true
+//        }
+
+
         engine.entity {
             with<RenderableComponent> {
                 zIndex = 0
@@ -91,6 +101,9 @@ class EntityFactory(
                 diveForce = 50f
                 diveForceAnchor.set(0f, height / 2f + height / 3f)
             }
+            with<FlashlightComponent> {
+                flashLight.setContactFilter(Categories.light, 0, Categories.whatLightCollidesWith)
+            }
         }
     }
 
@@ -151,8 +164,22 @@ class EntityFactory(
             addPoints(mapAssets.second, gridSize, mapOffset, LDtkMap)
             createBounds(gridSize, mapOffset, LDtkMap)
             createWater(gridSize, mapOffset, LDtkMap)
+
+
+            val startLight = LDtkMap.points[TypeOfPoint.PlayerStart]!!.first().cpy().add(-gridSize / 2f, gridSize / 2f)
+                .rotateAroundDeg(LDtkMap.mapOrigin, LDtkMap.mapRotation)
+//
+//            PointLight(inject<RayHandler>(), 32, Color.RED,15f,startLight.x, startLight.y).apply {
+//                isActive = true
+//            }
+
+            ConeLight(inject<RayHandler>(), 32, Color.RED, 25f, startLight.x, startLight.y, -90f, 20f).apply {
+                isActive = true
+            }
+
+
             createPlayerEntity(
-                LDtkMap.points[TypeOfPoint.PlayerStart]!!.random()
+                LDtkMap.points[TypeOfPoint.PlayerStart]!!.first()
                     .rotateAroundDeg(LDtkMap.mapOrigin, LDtkMap.mapRotation), 1f, 2.5f
             )
         }
@@ -192,7 +219,7 @@ class EntityFactory(
         val topRight = vec2(offset, offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
         val bottomRight = vec2(offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
         val bottomLeft = vec2(-offset, -offset)//.apply { rotateDeg(lDtkMap.mapRotation) }
-        lDtkMap.points[TypeOfPoint.BlobStart]!!.forEach { water ->
+        (lDtkMap.points[TypeOfPoint.BlobStart]!!).forEach { water ->
             val points = listOf(
                 vec2(water.x + topLeft.x, water.y + topLeft.y),
                 vec2(water.x + topRight.x, water.y + topRight.y),
@@ -206,6 +233,26 @@ class EntityFactory(
 
             createWaterEntity(points)
         }
+        (lDtkMap.points[TypeOfPoint.HumanStart]!!).forEach { water ->
+            val points = listOf(
+                vec2(water.x + topLeft.x, water.y + topLeft.y),
+                vec2(water.x + topRight.x, water.y + topRight.y),
+                vec2(water.x + bottomRight.x, water.y + bottomRight.y),
+                vec2(water.x + bottomLeft.x, water.y + bottomLeft.y)
+            )
+
+            for (point in points) {
+                point.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+            }
+
+            water.add(-tileSize / 2f, tileSize / 2f).rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+            val angle = (-90..-45 step 10).toList().random().toFloat()
+            ConeLight(inject<RayHandler>(), 16, Color.RED, 50f, water.x, water.y, angle, 20f).apply {
+                isActive = true
+            }
+
+            createWaterEntity(points)
+        }
     }
 
 
@@ -215,6 +262,7 @@ class EntityFactory(
          */
         for (bound in lDtkMap.points[TypeOfPoint.Impassable]!!) {
             bound.rotateAroundDeg(lDtkMap.mapOrigin, lDtkMap.mapRotation)
+
             lDtkMap.mapBodies.add(world.body {
                 type = BodyDef.BodyType.StaticBody
                 position.set(

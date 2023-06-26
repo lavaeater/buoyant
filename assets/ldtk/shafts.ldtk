@@ -65,7 +65,9 @@
 			"intGridValues": [
 				{ "value": 1, "identifier": "walls", "color": "#FFFFFF", "tile": null },
 				{ "value": 2, "identifier": "water", "color": "#BBF8F5", "tile": null },
-				{ "value": 3, "identifier": "player_start", "color": "#36BB2D", "tile": null }
+				{ "value": 3, "identifier": "player_start", "color": "#36BB2D", "tile": null },
+				{ "value": 4, "identifier": "water_and_light", "color": "#FEE761", "tile": null },
+				{ "value": 5, "identifier": "win", "color": "#63C74D", "tile": null }
 			],
 			"autoRuleGroups": [],
 			"autoSourceLayerDefUid": null,

@@ -68,8 +68,8 @@ class RenderSystem(
         batch.use {
             super.update(deltaTime)
         }
-//        rayHandler.setCombinedMatrix(camera)
-//        rayHandler.updateAndRender()
+        rayHandler.setCombinedMatrix(camera)
+        rayHandler.updateAndRender()
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
