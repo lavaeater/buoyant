@@ -15,18 +15,46 @@ import lava.ecs.components.Buoyancy
 import lava.ecs.components.DiveControl
 import twodee.ecs.ashley.components.Box2d
 
-class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class).get()) {
+class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class).get()) {
 
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val diveControl = DiveControl.get(entity)
-        if(diveControl.hasAny()) {
+
+        if(diveControl.isRotating) {
+            diveControl.diveVector.rotateDeg(diveControl.rotationFactor * deltaTime * diveControl.rotationSpeed)
+        }
+
+        if (diveControl.isDiving) {
             val box2d = Box2d.get(entity)
             val body = box2d.body
-            val diveForce = diveControl.getVector().cpy().scl(diveControl.diveForce * MathUtils.lerp(0.5f, 1f, MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer)))
-            body.applyForce(diveForce,body.getWorldPoint(diveControl.diveForceAnchor), true)
+//            body.applyTorque(
+//                diveControl.rotationFactor *
+//                    deltaTime *
+//                    diveControl.diveForce *
+//                    MathUtils.lerp(
+//                        0.5f,
+//                        1f,
+//                        MathUtils.norm(
+//                            0f,
+//                            diveControl.strokeTimerDefault,
+//                            diveControl.strokeTimer
+//                        )
+//                    ),
+//                true
+//            )
+
+
+            val diveForce = diveControl.diveVector.cpy().scl(diveControl.divingFactor).scl(
+                diveControl.diveForce * MathUtils.lerp(
+                    0.5f,
+                    1f,
+                    MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer)
+                )
+            )
+            body.applyForce(diveForce, body.getWorldPoint(diveControl.diveForceAnchor), true)
             diveControl.strokeTimer -= deltaTime
-            if(diveControl.strokeTimer < 0f) diveControl.strokeTimer = diveControl.strokeTimerDefault
+            if (diveControl.strokeTimer < 0f) diveControl.strokeTimer = diveControl.strokeTimerDefault
         } else {
             diveControl.strokeTimer = diveControl.strokeTimerDefault
         }
@@ -34,8 +62,8 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
     }
 
     private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
-        if(diveControl.isUnderWater) {
-            if(diveControl.hasAny()) {
+        if (diveControl.isUnderWater) {
+            if (diveControl.hasAny()) {
                 diveControl.airSupply -= deltaTime * 2f
             } else {
                 diveControl.airSupply -= deltaTime * 1f
@@ -48,11 +76,11 @@ class DiveControlSystem: IteratingSystem(allOf(DiveControl::class, Box2d::class)
 }
 
 fun Shape.getPosition(): Vector2 {
-    if(this is CircleShape) {
+    if (this is CircleShape) {
         return position.cpy()
     } else if (this is PolygonShape) {
         val vertices = mutableListOf<Vector2>()
-        for(i in 0 until this.vertexCount) {
+        for (i in 0 until this.vertexCount) {
             val vertex = vec2()
             getVertex(i, vertex)
             vertices.add(vertex)

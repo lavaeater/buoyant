@@ -99,37 +99,21 @@ class RenderSystem(
             val body = fixture.body
             val position = body.getWorldPoint(fixture.shape.getPosition()) - vec2(sprite.regionWidth.toFloat() / 2f, sprite.regionHeight.toFloat() / 2f)//.rotateRad(body.angle)
             val angle = body.angle
-//            val scale = vec2(1f, 1f)
-//                vec2(fixture.shape.radius * 2f / sprite.regionWidth, fixture.shape.radius * 2f / sprite.regionHeight)
             sprite.setPosition(position.x, position.y)
             sprite.rotation = angle * MathUtils.radiansToDegrees
             sprite.setOriginCenter()
             sprite.setScale(gameSettings.MetersPerPixel)
             sprite.draw(batch)
-//            batch.draw(
-//                sprite,
-//                position.x,
-//                position.y,
-//                0.5f,
-//                0.5f,
-//                sprite.regionWidth.toFloat(),
-//                sprite.regionHeight.toFloat(),
-//                scale.x,
-//                scale.y,
-//                angle
-//            )
 
         }
     }
 
     private fun renderDiveControl(entity: Entity) {
-//        val diveControl = DiveControl.get(entity)
-//        val box2d = Box2d.get(entity)
-//        val body = box2d.body
-//        val head = box2d.bodies["head"]!!
-//        shapeDrawer.filledCircle(head.position,0.25f, Color.RED)
-//        shapeDrawer.line(head.position, head.position + diveControl.getVector().scl(10f), Color.RED)
-//        shapeDrawer.line(body.position, body.position + body.linearVelocity.cpy().scl(0.1f), Color.YELLOW)
+        val diveControl = DiveControl.get(entity)
+        val box2d = Box2d.get(entity)
+        val body = box2d.body
+        shapeDrawer.line(body.position, body.position + diveControl.diveVector.cpy().scl(2.5f), Color.RED)
+        shapeDrawer.line(body.position, body.position + body.linearVelocity.cpy().scl(0.1f), Color.YELLOW)
     }
 
     private val polygonColor = Color(0.5f, 0.5f, 0.5f, 0.5f)

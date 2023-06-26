@@ -34,34 +34,34 @@ class GameScreen(
                 Input.Keys.W,
                 "Swim up",
                 {
-                    diveControl.remove(Direction.Up)
+                    diveControl.remove(Direction.Swim)
                 }, {
-                    diveControl.add(Direction.Up)
+                    diveControl.add(Direction.Swim)
                 })
             setBoth(
                 Input.Keys.S,
                 "Swim down",
                 {
-                    diveControl.remove(Direction.Down)
+                    diveControl.remove(Direction.Hover)
                 }, {
-                    diveControl.add(Direction.Down)
+                    diveControl.add(Direction.Hover)
                 })
 
             setBoth(
                 Input.Keys.A,
                 "Swim left",
                 {
-                    diveControl.remove(Direction.Left)
+                    diveControl.remove(Direction.RotateLeft)
                 }, {
-                    diveControl.add(Direction.Left)
+                    diveControl.add(Direction.RotateLeft)
                 })
             setBoth(
                 Input.Keys.D,
                 "Swim right",
                 {
-                    diveControl.remove(Direction.Right)
+                    diveControl.remove(Direction.RotateRight)
                 }, {
-                    diveControl.add(Direction.Right)
+                    diveControl.add(Direction.RotateRight)
                 })
 
             setBoth(
