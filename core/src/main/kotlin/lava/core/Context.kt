@@ -56,7 +56,7 @@ object Context : InjectionContext() {
                 setContactListener(CollisionManager(game))
             })
             bindSingleton(RayHandler(inject()).apply {
-                setAmbientLight(.1f)
+                setAmbientLight(.25f)
                 setBlurNum(3)
             })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
