@@ -4,15 +4,15 @@ import com.badlogic.gdx.ai.GdxAI
 import twodee.music.*
 
 class MusicPlayer {
-    private val sampleBaseDir = "projects/no-backup/music-samples-explorer"
+    private val sampleBaseDir = "instruments"
 
-    private val kickSampler by lazy { loadSampler("Kick", "drums-1.json", sampleBaseDir) }
-    private val snareSampler by lazy { loadSampler("Snare", "drums-1.json", sampleBaseDir) }
-    private val hatSampler by lazy { loadSampler("ClHat", "drums-1.json", sampleBaseDir) }
-    private val bassSampler by lazy { loadSampler("lofi-bass", "lo-fi-1.json", sampleBaseDir) }
-    private val rythmGuitarSampler by lazy { loadSampler("rythm-guitar-c", "guitar-1.json", sampleBaseDir) }
-    private val soloSampler by lazy { loadSampler("lead-c", "lo-fi-1.json", sampleBaseDir) }
-    private val leadSampler by lazy { loadSampler("fxpad", "lo-fi-1.json", sampleBaseDir) }
+    private val kickSampler by lazy { loadSampler("Kick", "drums-1.txt", sampleBaseDir) }
+    private val snareSampler by lazy { loadSampler("Snare", "drums-1.txt", sampleBaseDir) }
+    private val hatSampler by lazy { loadSampler("ClHat", "drums-1.txt", sampleBaseDir) }
+    private val bassSampler by lazy { loadSampler("lofi-bass", "lo-fi-1.txt", sampleBaseDir) }
+    private val rythmGuitarSampler by lazy { loadSampler("rythm-guitar-c", "guitar-1.txt", sampleBaseDir) }
+    private val soloSampler by lazy { loadSampler("lead-c", "lo-fi-1.txt", sampleBaseDir) }
+    private val leadSampler by lazy { loadSampler("fxpad", "lo-fi-1.txt", sampleBaseDir) }
     private val kickBeat = floatArrayOf(
         1f, -1f, -1f, 0.1f,
         0.4f, -1f, 0.4f, -1f,
@@ -115,6 +115,19 @@ class MusicPlayer {
         signalConductor.update()
         playSounds()
     }
+
+    fun play() {
+        signalConductor.play()
+    }
+
+    fun stop() {
+        signalConductor.stop()
+    }
+
+    var intensity: Float get() = signalConductor.baseIntensity
+        set(value) {
+            signalConductor.baseIntensity = value
+        }
 
     private fun playSounds() {
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }

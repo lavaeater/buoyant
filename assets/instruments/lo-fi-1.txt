@@ -1,0 +1,5 @@
+lofi-bass,EXPLORE-THIS-lo-fi-samples/ConstructionKits/04(120)/BassMulti/C.wav
+fxpad,EXPLORE-THIS-lo-fi-samples/ConstructionKits/04(120)/FXPadMulti/C.wav
+acid-c-short,EXPLORE-THIS-lo-fi-samples/ConstructionKits/04(120)/AcidMulti/Octave03(Short)/C.wav
+acid-c-long,EXPLORE-THIS-lo-fi-samples/ConstructionKits/04(120)/AcidMulti/Octave01(Long)/C.wav
+lead-c,EXPLORE-THIS-lo-fi-samples/BonusMultiSamples/Lead02/Octave02/C.wav
