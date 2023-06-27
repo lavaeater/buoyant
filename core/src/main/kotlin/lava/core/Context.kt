@@ -19,6 +19,7 @@ import ktx.box2d.createWorld
 import ktx.math.vec2
 import ktx.scene2d.Scene2DSkin
 import lava.ecs.systems.*
+import lava.music.MusicPlayer
 import lava.screens.GameScreen
 import lava.ui.ToolHud
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -84,6 +85,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
+            addSystem(MusicSystem(MusicPlayer()))
             addSystem(BubbleSystem())
             addSystem(BubbleLifeSystem())
             addSystem(CrazyCameraSystem(inject(), 0.1f))
