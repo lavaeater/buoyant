@@ -11,11 +11,13 @@ import com.badlogic.gdx.physics.box2d.Shape
 import ktx.ashley.allOf
 import ktx.math.plus
 import ktx.math.vec2
+import lava.SfxPlayer
+import lava.core.Sfx
 import lava.ecs.components.Buoyancy
 import lava.ecs.components.DiveControl
 import twodee.ecs.ashley.components.Box2d
 
-class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class).get()) {
+class DiveControlSystem(private val sfxPlayer: SfxPlayer) : IteratingSystem(allOf(DiveControl::class, Box2d::class).get()) {
 
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -45,15 +47,31 @@ class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class
         fixBreathing(entity, diveControl, deltaTime)
     }
 
+    private var diaphragmCoolDown = -1f
+
+    private var wasUnderWater = false
+
     private fun fixBreathing(entity: Entity, diveControl: DiveControl, deltaTime: Float) {
         if (diveControl.isUnderWater) {
+            wasUnderWater = true
             if (diveControl.hasAny()) {
                 diveControl.airSupply -= deltaTime * 2.5f
             } else {
                 diveControl.airSupply -= deltaTime * 1f
             }
-
+            if(diveControl.airSupply < 30f) {
+                if(diaphragmCoolDown < 0f) {
+                    diaphragmCoolDown = 9f
+                    sfxPlayer.playSound(Sfx.Diaphragm, 1f)
+                } else {
+                    diaphragmCoolDown -= deltaTime
+                }
+            }
         } else {
+            if(wasUnderWater) {
+                wasUnderWater = false
+                sfxPlayer.playSound(Sfx.Breath, 1f)
+            }
             diveControl.airSupply = 100f
         }
     }

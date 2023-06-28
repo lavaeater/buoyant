@@ -16,9 +16,11 @@ import ktx.collections.gdxArrayOf
 import ktx.log.info
 import ktx.math.vec2
 import ktx.math.vec3
+import lava.SfxPlayer
 import lava.core.BuoyantGame
 import lava.core.EntityFactory
 import lava.core.GameState
+import lava.core.Sfx
 import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
 import lava.music.MusicPlayer
@@ -34,6 +36,7 @@ class GameScreen(
     private val entityFactory: EntityFactory,
     private val hud: ToolHud,
     private val musicPlayer: MusicPlayer,
+    private val sfxPlayer: SfxPlayer,
     camera: OrthographicCamera,
     viewport: Viewport,
     batch: PolygonSpriteBatch
@@ -175,6 +178,7 @@ class GameScreen(
     override fun show() {
         super.show()
         if (game.gameState == GameState.GameStart) {
+            sfxPlayer.playSound(Sfx.Intro, 1f)
             entityFactory.createMap("two")
             engine().systems.forEach { it.setProcessing(true) }
             game.gameState = GameState.Playing

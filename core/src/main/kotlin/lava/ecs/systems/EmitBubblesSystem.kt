@@ -3,14 +3,16 @@ package lava.ecs.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import ktx.ashley.allOf
+import lava.SfxPlayer
 import lava.core.EntityFactory
+import lava.core.Sfx
 import lava.ecs.components.BubbleEmitterComponent
 import lava.ecs.components.DiveControl
 import twodee.ecs.ashley.components.BodyPart
 import twodee.ecs.ashley.components.Box2d
 import twodee.injection.InjectionContext.Companion.inject
 
-class EmitBubblesSystem:IteratingSystem(allOf(DiveControl::class, BubbleEmitterComponent::class, Box2d::class).get()) {
+class EmitBubblesSystem(private val sfxPlayer: SfxPlayer):IteratingSystem(allOf(DiveControl::class, BubbleEmitterComponent::class, Box2d::class).get()) {
 
     private val coolDownRange = 1..10
     private var coolDown = coolDownRange.random() / 10f
@@ -27,6 +29,7 @@ class EmitBubblesSystem:IteratingSystem(allOf(DiveControl::class, BubbleEmitterC
                 val emittingBody = emittingFixture.body
                 val emittingPosition = emittingBody.getWorldPoint(emittingFixture.shape.getPosition())
                 entityFactory.emitBubble(emittingPosition, 0.1f)
+                sfxPlayer.playSound(Sfx.Bubbles, 1f)
             }
         } else {
             coolDown = 5f

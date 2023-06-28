@@ -24,7 +24,7 @@ class CrazyCameraSystem(camera: OrthographicCamera, alpha: Float) : CameraFollow
         camera.position.lerp(
             vec3(cameraPosition, 0f), alpha
         )
-        camera.up.lerp(cameraUp, alpha)
+        camera.up.lerp(cameraUp, alpha / 5f)
 
         camera.update(true)
     }

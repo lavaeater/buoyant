@@ -17,6 +17,7 @@ import ktx.assets.toInternalFile
 import ktx.box2d.createWorld
 import ktx.math.vec2
 import ktx.scene2d.Scene2DSkin
+import lava.SfxPlayer
 import lava.ecs.systems.*
 import lava.music.MusicPlayer
 import lava.screens.GameScreen
@@ -61,6 +62,7 @@ object Context : InjectionContext() {
             })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(Assets())
+            bindSingleton(SfxPlayer(inject()))
             bindSingleton(MusicPlayer())
             bindSingleton(getEngine(gameSettings))
             bindSingleton(EntityFactory(inject(), inject(), inject()))
@@ -70,6 +72,7 @@ object Context : InjectionContext() {
             bindSingleton(ToolHud(inject(), inject()))
             bindSingleton(
                 GameScreen(
+                    inject(),
                     inject(),
                     inject(),
                     inject(),
@@ -86,15 +89,22 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
             addSystem(MusicSystem(inject()))
-            addSystem(EmitBubblesSystem())
+            addSystem(EmitBubblesSystem(inject()))
             addSystem(BubbleLifeSystem())
             addSystem(BubbleBuoyancySystem())
             addSystem(CrazyCameraSystem(inject(), 0.1f))
 //            addSystem(CameraFollowSystem(inject(), 0.1f))
             addSystem(PlayerFlashlightSystem())
             addSystem(HeadUnderWaterSystem())
-            addSystem(DiveControlSystem())
-            addSystem(BuoyantPhysicsSystem(gameSettings.TimeStep, gameSettings.VelIters, gameSettings.PosIters, inject()))
+            addSystem(DiveControlSystem(inject()))
+            addSystem(
+                BuoyantPhysicsSystem(
+                    gameSettings.TimeStep,
+                    gameSettings.VelIters,
+                    gameSettings.PosIters,
+                    inject()
+                )
+            )
             addSystem(BodyControlSystem())
             addSystem(KeyboardInputSystem(inject(), invertX = false, invertY = false))
             addSystem(FlashlightDirectionSystem())
@@ -104,7 +114,7 @@ object Context : InjectionContext() {
             addSystem(UpdateActionsSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject(), inject()))
             addSystem(UpdateMemorySystem())
-            addSystem(DeathSystem(inject()))
+            addSystem(DeathSystem(inject(), inject(), inject()))
             addSystem(LogSystem())
         }
     }
@@ -117,22 +127,23 @@ object BuoyancySet {
 sealed class ContactType {
     object Unknown : ContactType()
     data class Buoyancy(val waterFixture: Fixture, val buoyantFixture: Fixture) : ContactType()
-    object WinArea: ContactType()
+    object WinArea : ContactType()
     companion object {
         fun getContactType(contact: Contact): ContactType {
             val fixtureA = contact.fixtureA
             val fixtureB = contact.fixtureB
 
-            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.filterData.categoryBits == Categories.bodies) {
+            if ((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.filterData.categoryBits == Categories.bodies) {
                 return Buoyancy(fixtureA, fixtureB)
             }
 
-            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bodies) {
+            if ((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bodies) {
                 return Buoyancy(fixtureB, fixtureA)
             }
 
-            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.winArea && (fixtureB.filterData.categoryBits == Categories.bodies || fixtureB.filterData.categoryBits == Categories.head)) ||
-                (fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.winArea && (fixtureA.filterData.categoryBits == Categories.bodies || fixtureA.filterData.categoryBits == Categories.head)))
+            if ((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.winArea && (fixtureB.filterData.categoryBits == Categories.bodies || fixtureB.filterData.categoryBits == Categories.head)) ||
+                (fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.winArea && (fixtureA.filterData.categoryBits == Categories.bodies || fixtureA.filterData.categoryBits == Categories.head))
+            )
                 return WinArea
 
 
@@ -147,7 +158,7 @@ class CollisionManager(private val game: BuoyantGame) : ContactListener {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
             ContactType.WinArea -> {
-                if(game.gameState == GameState.Playing) {
+                if (game.gameState == GameState.Playing) {
                     game.gotoGameVictory()
                 }
             }

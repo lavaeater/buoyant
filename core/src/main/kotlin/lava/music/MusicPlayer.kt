@@ -137,7 +137,7 @@ class MusicPlayer {
     var intensity: Float get() = signalConductor.baseIntensity
         set(value) {
             signalConductor.baseIntensity = value
-            volume = MathUtils.lerp(0.05f, 0.6f, value)
+            volume = MathUtils.lerp(0.01f, 0.1f, value)
         }
 
     private fun playSounds() {

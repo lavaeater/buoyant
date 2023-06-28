@@ -73,6 +73,7 @@ class BuoyantGame : MainGame() {
         addScreen(
             GameOverScreen(
                 this,
+                inject(),
                 ExtendViewport(
                     gameSettings.GameWidth * 2,
                     gameSettings.GameHeight * 2,

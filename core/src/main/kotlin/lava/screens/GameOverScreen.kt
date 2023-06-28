@@ -11,14 +11,17 @@ import ktx.assets.toInternalFile
 import ktx.scene2d.actors
 import ktx.scene2d.label
 import ktx.scene2d.table
+import lava.SfxPlayer
 import lava.core.BuoyantGame
 import lava.core.GameState
+import lava.core.Sfx
 import twodee.extensions.boundLabel
 import twodee.input.CommandMap
 import twodee.screens.ScreenWithStage
 
 class GameOverScreen(
     private val game: BuoyantGame,
+    private val sfxPlayer: SfxPlayer,
     viewport: Viewport,
     batch: PolygonSpriteBatch
 ) : ScreenWithStage(game, viewport, viewport.camera as OrthographicCamera, batch) {
@@ -53,6 +56,12 @@ class GameOverScreen(
                 }
             }
         }
+    }
+
+    override fun show() {
+        super.show()
+        if(game.gameState == GameState.GameVictory)
+            sfxPlayer.playSound(Sfx.Outro, 1f)
     }
 
     override fun renderBatch(delta: Float) {
