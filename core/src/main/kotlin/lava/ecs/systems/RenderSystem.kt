@@ -69,8 +69,30 @@ class RenderSystem(
         batch.use {
             super.update(deltaTime)
         }
+
         rayHandler.setCombinedMatrix(camera)
         rayHandler.updateAndRender()
+//        val player = getPlayer()
+//        if (player != null)
+//            renderCharacterSecondPass(player, deltaTime)
+    }
+
+    val playerFamily = allOf(RenderableComponent::class, DiveControl::class).get()
+
+    fun getPlayer(): Entity? {
+        return engine.getEntitiesFor(playerFamily).firstOrNull()
+    }
+
+    fun renderCharacterSecondPass(entity: Entity, deltaTime: Float) {
+        val renderableComponent = RenderableComponent.get(entity)
+        if (renderableComponent.typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
+            batch.use {
+                renderMultiSprites(
+                    entity,
+                    renderableComponent.typeOfRenderable as TypeOfRenderable.MultiSpritesForFixtures
+                )
+            }
+        }
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -87,7 +109,7 @@ class RenderSystem(
         if (renderableComponent.typeOfRenderable is TypeOfRenderable.MultiSpritesForFixtures) {
             renderMultiSprites(entity, renderableComponent.typeOfRenderable as TypeOfRenderable.MultiSpritesForFixtures)
         }
-        if(renderableComponent.typeOfRenderable is TypeOfRenderable.RenderableCircle) {
+        if (renderableComponent.typeOfRenderable is TypeOfRenderable.RenderableCircle) {
             renderCircle(entity, renderableComponent.typeOfRenderable as TypeOfRenderable.RenderableCircle)
         }
     }
@@ -99,11 +121,11 @@ class RenderSystem(
         val position = body.position
         val radius = renderableCircle.radius
         val color = renderableCircle.color
-        if(renderableCircle.filled)
+        if (renderableCircle.filled)
             shapeDrawer.filledCircle(position, radius, color)
         else {
             shapeDrawer.setColor(color)
-            shapeDrawer.circle(position.x, position.y, radius,0.05f, JoinType.SMOOTH)
+            shapeDrawer.circle(position.x, position.y, radius, 0.05f, JoinType.SMOOTH)
             shapeDrawer.setColor(Color.WHITE)
         }
     }
@@ -117,7 +139,10 @@ class RenderSystem(
         for ((part, fixture) in allFixtures) {
             val sprite = sprites[part]!!
             val body = fixture.body
-            val position = body.getWorldPoint(fixture.shape.getPosition()) - vec2(sprite.regionWidth.toFloat() / 2f, sprite.regionHeight.toFloat() / 2f)//.rotateRad(body.angle)
+            val position = body.getWorldPoint(fixture.shape.getPosition()) - vec2(
+                sprite.regionWidth.toFloat() / 2f,
+                sprite.regionHeight.toFloat() / 2f
+            )//.rotateRad(body.angle)
             val angle = body.angle
             sprite.setPosition(position.x, position.y)
             sprite.rotation = angle * MathUtils.radiansToDegrees
@@ -127,7 +152,7 @@ class RenderSystem(
         }
         val diveControl = DiveControl.get(entity)
         val sprite = assets.arm
-        val armPosition =  box2d.body.getWorldPoint(vec2(0f, 0.75f))
+        val armPosition = box2d.body.getWorldPoint(vec2(0f, 0.75f))
         sprite.setScale(gameSettings.MetersPerPixel)
         sprite.setOrigin(0f, 0f)
         sprite.setPosition(armPosition.x, armPosition.y)
@@ -135,7 +160,8 @@ class RenderSystem(
         val armScale = MathUtils.lerp(
             0.5f,
             1f,
-            MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer))
+            MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer)
+        )
         sprite.setScale(gameSettings.MetersPerPixel, armScale * gameSettings.MetersPerPixel)
         sprite.draw(batch)
     }
@@ -155,7 +181,7 @@ class RenderSystem(
         shapeDrawer.setColor(polygonColor)
         shapeDrawer.filledPolygon(polygonComponent.polygon)
         shapeDrawer.setColor(Color.WHITE)
-        if(debug) {
+        if (debug) {
             for (v in polygonComponent.polygon.transformedVectors()) {
                 shapeDrawer.filledCircle(v, 0.4f)
             }
