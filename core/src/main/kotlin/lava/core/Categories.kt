@@ -15,8 +15,8 @@ object Categories {
     val whatWallsCollideWith: Short = bodies or head or light or bubbles
     val whatBodiesCollideWith: Short = walls or bodies or water or light or winArea
     val whatHeadsCollideWith: Short = walls or light or winArea
-    val whatWaterCollidesWith: Short = bodies or head or bubbles
+    val whatWaterCollidesWith: Short = bodies or head
     val whatLightCollidesWith: Short = bodies or head or walls or bubbles
-    val whatBubblesCollideWith: Short = walls or light or water
+    val whatBubblesCollideWith: Short = walls or light
     val whatWinAreaCollidesWith: Short = bodies or head
 }

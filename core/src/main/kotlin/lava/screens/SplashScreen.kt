@@ -52,6 +52,12 @@ class SplashScreen(
                             .inCell
                             .grow()
                             .fill()
+                        row()
+                        label("""
+                            Use <SPACE> or <W> to start swimming in
+                            the direction of your arms.
+                            Control arms with <A> and <D>
+                        """.trimIndent())
                     }
                 }
             }

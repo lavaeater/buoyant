@@ -23,6 +23,7 @@ import lava.ecs.components.DiveControl
 import lava.ecs.components.PolygonComponent
 import lava.ecs.components.RenderableComponent
 import lava.ecs.components.TypeOfRenderable
+import space.earlygrey.shapedrawer.JoinType
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.core.world
 import twodee.ecs.ashley.components.BodyPart
@@ -92,12 +93,19 @@ class RenderSystem(
     }
 
     private fun renderCircle(entity: Entity, renderableCircle: TypeOfRenderable.RenderableCircle) {
+
         val box2d = Box2d.get(entity)
         val body = box2d.body
         val position = body.position
         val radius = renderableCircle.radius
         val color = renderableCircle.color
-        shapeDrawer.filledCircle(position, radius, color)
+        if(renderableCircle.filled)
+            shapeDrawer.filledCircle(position, radius, color)
+        else {
+            shapeDrawer.setColor(color)
+            shapeDrawer.circle(position.x, position.y, radius,0.05f, JoinType.SMOOTH)
+            shapeDrawer.setColor(Color.WHITE)
+        }
     }
 
     private fun renderMultiSprites(entity: Entity, renderableType: TypeOfRenderable.MultiSpritesForFixtures) {
@@ -124,6 +132,11 @@ class RenderSystem(
         sprite.setOrigin(0f, 0f)
         sprite.setPosition(armPosition.x, armPosition.y)
         sprite.rotation = diveControl.diveVector.angleDeg() - 90f
+        val armScale = MathUtils.lerp(
+            0.5f,
+            1f,
+            MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer))
+        sprite.setScale(gameSettings.MetersPerPixel, armScale * gameSettings.MetersPerPixel)
         sprite.draw(batch)
     }
 

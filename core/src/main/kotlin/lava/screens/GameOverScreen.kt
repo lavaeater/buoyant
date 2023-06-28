@@ -45,6 +45,11 @@ class GameOverScreen(
                         .inCell
                         .grow()
                         .fill()
+                    row()
+                    label("press space to try again")
+                        .inCell
+                        .grow()
+                        .fill()
                 }
             }
         }

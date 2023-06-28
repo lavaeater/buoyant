@@ -31,8 +31,8 @@ class DiveControlSystem : IteratingSystem(allOf(DiveControl::class, Box2d::class
 
             val diveForce = diveControl.diveVector.cpy().scl(diveControl.divingFactor).scl(
                 diveControl.diveForce * MathUtils.lerp(
-                    0.5f,
-                    1f,
+                    0.15f,
+                    1.5f,
                     MathUtils.norm(0f, diveControl.strokeTimerDefault, diveControl.strokeTimer)
                 )
             )

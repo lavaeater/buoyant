@@ -10,7 +10,7 @@ import twodee.ecs.ashley.components.BodyPart
 import twodee.ecs.ashley.components.Box2d
 import twodee.injection.InjectionContext.Companion.inject
 
-class BubbleSystem:IteratingSystem(allOf(DiveControl::class, BubbleEmitterComponent::class, Box2d::class).get()) {
+class EmitBubblesSystem:IteratingSystem(allOf(DiveControl::class, BubbleEmitterComponent::class, Box2d::class).get()) {
 
     private val coolDownRange = 1..10
     private var coolDown = coolDownRange.random() / 10f
@@ -28,6 +28,8 @@ class BubbleSystem:IteratingSystem(allOf(DiveControl::class, BubbleEmitterCompon
                 val emittingPosition = emittingBody.getWorldPoint(emittingFixture.shape.getPosition())
                 entityFactory.emitBubble(emittingPosition, 0.1f)
             }
+        } else {
+            coolDown = 5f
         }
     }
 }

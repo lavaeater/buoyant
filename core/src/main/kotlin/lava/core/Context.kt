@@ -3,7 +3,6 @@ package lava.core
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.PooledEngine
-import com.badlogic.gdx.Game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.*
@@ -25,7 +24,6 @@ import lava.ui.ToolHud
 import space.earlygrey.shapedrawer.ShapeDrawer
 import twodee.ecs.ashley.systems.*
 import twodee.injection.InjectionContext
-import kotlin.experimental.or
 
 object Context : InjectionContext() {
     private val shapeDrawerRegion: TextureRegion by lazy {
@@ -88,10 +86,11 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
             addSystem(MusicSystem(inject()))
-            addSystem(BubbleSystem())
+            addSystem(EmitBubblesSystem())
             addSystem(BubbleLifeSystem())
-//            addSystem(CrazyCameraSystem(inject(), 0.1f))
-            addSystem(CameraFollowSystem(inject(), 0.1f))
+            addSystem(BubbleBuoyancySystem())
+            addSystem(CrazyCameraSystem(inject(), 0.1f))
+//            addSystem(CameraFollowSystem(inject(), 0.1f))
             addSystem(PlayerFlashlightSystem())
             addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())
@@ -104,7 +103,6 @@ object Context : InjectionContext() {
             addSystem(AiTimePieceSystem())
             addSystem(UpdateActionsSystem())
             addSystem(RenderSystem(inject(), inject(), inject(), inject(), inject(), inject()))
-//            addSystem(Box2dDebugRenderSystem(inject(), inject()))
             addSystem(UpdateMemorySystem())
             addSystem(DeathSystem(inject()))
             addSystem(LogSystem())
@@ -114,13 +112,11 @@ object Context : InjectionContext() {
 
 object BuoyancySet {
     val buoyancyStuff = mutableSetOf<ContactType.Buoyancy>()
-    val bubbles = mutableSetOf<ContactType.Bubble>()
 }
 
 sealed class ContactType {
     object Unknown : ContactType()
     data class Buoyancy(val waterFixture: Fixture, val buoyantFixture: Fixture) : ContactType()
-    data class Bubble(val bubbleFixture: Fixture) : ContactType()
     object WinArea: ContactType()
     companion object {
         fun getContactType(contact: Contact): ContactType {
@@ -133,14 +129,6 @@ sealed class ContactType {
 
             if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bodies) {
                 return Buoyancy(fixtureB, fixtureA)
-            }
-
-            if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.water) && fixtureB.filterData.categoryBits == Categories.bubbles) {
-                return Bubble(fixtureB)
-            }
-
-            if((fixtureB.isSensor && fixtureB.filterData.categoryBits == Categories.water) && fixtureA.filterData.categoryBits == Categories.bubbles) {
-                return Bubble(fixtureA)
             }
 
             if((fixtureA.isSensor && fixtureA.filterData.categoryBits == Categories.winArea && (fixtureB.filterData.categoryBits == Categories.bodies || fixtureB.filterData.categoryBits == Categories.head)) ||
@@ -158,7 +146,6 @@ class CollisionManager(private val game: BuoyantGame) : ContactListener {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.add(contactType)
-            is ContactType.Bubble -> BuoyancySet.bubbles.add(contactType)
             ContactType.WinArea -> {
                 if(game.gameState == GameState.Playing) {
                     game.gotoGameVictory()
@@ -171,7 +158,6 @@ class CollisionManager(private val game: BuoyantGame) : ContactListener {
         when (val contactType = ContactType.getContactType(contact)) {
             ContactType.Unknown -> {}
             is ContactType.Buoyancy -> BuoyancySet.buoyancyStuff.remove(contactType)
-            is ContactType.Bubble -> BuoyancySet.bubbles.remove(contactType)
             ContactType.WinArea -> {}
         }
     }

@@ -10,7 +10,7 @@ import twodee.ecs.ashley.components.BodyPart
 
 sealed class TypeOfRenderable {
     object Whatever: TypeOfRenderable()
-    class RenderableCircle(var radius: Float, var color: Color = Color.WHITE): TypeOfRenderable()
+    class RenderableCircle(var radius: Float, var color: Color = Color.WHITE, var filled: Boolean = false): TypeOfRenderable()
     class MultiSpritesForFixtures(val sprites: Map<BodyPart, Sprite>): TypeOfRenderable()
 }
 

@@ -7,7 +7,7 @@ import ktx.ashley.mapperFor
 
 class BubbleComponent: Component, Pool.Poolable {
     var radius = 2f
-    var lifeSpanRange = 1..10
+    var lifeSpanRange = 5..10
     var lifeSpan = lifeSpanRange.random().toFloat()
 
     override fun reset() {

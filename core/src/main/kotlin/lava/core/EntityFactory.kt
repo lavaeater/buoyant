@@ -1,7 +1,6 @@
 package lava.core
 
 import box2dLight.ConeLight
-import box2dLight.PointLight
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.graphics.Color
@@ -14,13 +13,10 @@ import com.badlogic.gdx.physics.box2d.World
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.*
-import ktx.math.minus
 import ktx.math.plus
 import ktx.math.vec2
 import lava.ecs.components.*
-import twodee.core.world
 import twodee.ecs.ashley.components.*
-import twodee.injection.InjectionContext
 import twodee.injection.InjectionContext.Companion.inject
 
 
@@ -44,7 +40,7 @@ class EntityFactory(
             }
             with<TransformComponent>()
             //Get back to bubbles later, mate!
-//            with<BubbleEmitterComponent>()
+            with<BubbleEmitterComponent>()
             with<CameraFollow>()
             with<Box2d> {
                 body = world.body {
@@ -342,9 +338,10 @@ class EntityFactory(
                     userData = this@entity.entity
                     fixedRotation = false
                     angularDamping = 0.5f
+                    linearDamping = 1f
                     gravityScale = 0.25f
                     circle(radius) {
-                        density = 0.01f
+                        density = 2f
                         filter {
                             categoryBits = Categories.bubbles
                             maskBits = Categories.whatBubblesCollideWith

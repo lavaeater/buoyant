@@ -19,32 +19,6 @@ class BuoyantPhysicsSystem(timeStep: Float, velIters: Int, posIters: Int, privat
     Box2dUpdateSystem(timeStep, velIters, posIters)
 {
     override fun everyTimeStep(deltaTime: Float) {
-
-        /*
-        Our overlapping area is simple, actually, because our fixtures are all boxes or circles!
-
-Our water is also just a horizontal line, very easy indeed.
-         */
-        for(contact in BuoyancySet.bubbles) {
-            val body = contact.bubbleFixture.body
-            val entity = body.userData as Entity
-            val bubbleFixture = body.fixtureList.first()
-            val bubbleComponent = BubbleComponent.get(entity)
-            val displacedMass = bubbleFixture.density * bubbleComponent.radius.pow(2) * Math.PI.toFloat()
-            val buoyancyForce = world.gravity.cpy().scl(-1f).scl(displacedMass)
-            body.applyForce(buoyancyForce, body.worldCenter, true)
-
-            // Bubble drag
-//            val velDir = body.linearVelocity.cpy()
-//            val vel = velDir.len()
-//            velDir.nor()
-//
-//            //apply simple linear drag
-//            val dragMag = bubbleFixture.density * vel
-//            val dragForce = velDir.scl(-1f).scl(dragMag).scl(0.5f)
-//            body.applyForce( dragForce, body.worldCenter, true)
-        }
-
         for (contact in BuoyancySet.buoyancyStuff) {
             val intersectionData = findIntersection(contact.waterFixture, contact.buoyantFixture)
             if (intersectionData.under) {

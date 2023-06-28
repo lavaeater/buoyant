@@ -74,8 +74,8 @@ class BuoyantGame : MainGame() {
             GameOverScreen(
                 this,
                 ExtendViewport(
-                    gameSettings.GameWidth,
-                    gameSettings.GameHeight,
+                    gameSettings.GameWidth * 2,
+                    gameSettings.GameHeight * 2,
                     OrthographicCamera()
                 ), inject()
             )
@@ -84,8 +84,8 @@ class BuoyantGame : MainGame() {
             SplashScreen(
                 this,
                 ExtendViewport(
-                    gameSettings.GameWidth,
-                    gameSettings.GameHeight,
+                    gameSettings.GameWidth * 2,
+                    gameSettings.GameHeight * 2,
                     OrthographicCamera()
                 ),
                 inject()
