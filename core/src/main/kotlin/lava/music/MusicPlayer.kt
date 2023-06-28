@@ -59,11 +59,11 @@ class MusicPlayer {
             4f,
             mutableListOf(
                 SignalDrummer("kick", kickSampler, kickBeat),
-                SignalDrummer("snare", snareSampler, snareBeat),
+//                SignalDrummer("snare", snareSampler, snareBeat),
                 SignalDrummer("hat", hatSampler, hatBeat),
                 SignalBass("bass", bassSampler),
                 SoloMusician("soolooo", listOf(leadSampler)),
-                SoloMusician("soolooo", listOf(soloSampler, rythmGuitarSampler)),
+//                SoloMusician("soolooo", listOf(soloSampler, rythmGuitarSampler)),
             ),
             generateChords()
         )
@@ -137,7 +137,7 @@ class MusicPlayer {
     var intensity: Float get() = signalConductor.baseIntensity
         set(value) {
             signalConductor.baseIntensity = value
-            volume = MathUtils.lerp(0.15f, 0.6f, value)
+            volume = MathUtils.lerp(0.05f, 0.6f, value)
         }
 
     private fun playSounds() {
