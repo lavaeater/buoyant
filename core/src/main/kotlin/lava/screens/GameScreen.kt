@@ -21,6 +21,7 @@ import lava.core.EntityFactory
 import lava.core.GameState
 import lava.ecs.components.Direction
 import lava.ecs.components.DiveControl
+import lava.music.MusicPlayer
 import lava.ui.ToolHud
 import twodee.core.engine
 import twodee.core.world
@@ -32,6 +33,7 @@ class GameScreen(
     private val game: BuoyantGame,
     private val entityFactory: EntityFactory,
     private val hud: ToolHud,
+    private val musicPlayer: MusicPlayer,
     camera: OrthographicCamera,
     viewport: Viewport,
     batch: PolygonSpriteBatch
@@ -106,6 +108,12 @@ class GameScreen(
                 }, {
                     cameraZoom = 1f
                 })
+            setDown(
+                Input.Keys.M,
+                "Toggle Music") {
+                musicPlayer.toggle()
+                info { "cameraZoom: ${camera.zoom}" }
+            }
         }
     }
 
@@ -167,7 +175,7 @@ class GameScreen(
 
     override fun hide() {
         super.hide()
-        if(game.gameState == GameState.GameOver || game.gameState == GameState.GameVictory) {
+        if (game.gameState == GameState.GameOver || game.gameState == GameState.GameVictory) {
             engine().systems.forEach { it.setProcessing(false) }
             engine().removeAllEntities()
             val bodyArray = gdxArrayOf<Body>(false, world().bodyCount)

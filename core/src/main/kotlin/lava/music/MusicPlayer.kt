@@ -124,6 +124,13 @@ class MusicPlayer {
         signalConductor.stop()
     }
 
+    fun toggle() {
+        if(signalConductor.notPlaying)
+            signalConductor.play()
+        else
+            signalConductor.stop()
+    }
+
     var intensity: Float get() = signalConductor.baseIntensity
         set(value) {
             signalConductor.baseIntensity = value

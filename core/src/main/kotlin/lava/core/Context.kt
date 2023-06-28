@@ -63,6 +63,7 @@ object Context : InjectionContext() {
             })
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(Assets())
+            bindSingleton(MusicPlayer())
             bindSingleton(getEngine(gameSettings))
             bindSingleton(EntityFactory(inject(), inject(), inject()))
             bindSingleton(InputMultiplexer().apply {
@@ -85,7 +86,7 @@ object Context : InjectionContext() {
     private fun getEngine(gameSettings: GameSettings): Engine {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
-            addSystem(MusicSystem(MusicPlayer()))
+            addSystem(MusicSystem(inject()))
             addSystem(BubbleSystem())
             addSystem(BubbleLifeSystem())
             addSystem(CrazyCameraSystem(inject(), 0.1f))
