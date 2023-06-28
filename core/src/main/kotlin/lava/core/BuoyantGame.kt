@@ -18,6 +18,7 @@ sealed class GameState {
     object GameOver : GameState()
     object GameVictory : GameState()
     object WaitForVictory : GameState()
+    object WaitForGameOver : GameState()
 }
 
 class BuoyantGame : MainGame() {
@@ -35,8 +36,16 @@ class BuoyantGame : MainGame() {
     }
 
     override fun goToGameOver() {
-        gameState = GameState.GameOver
-        setScreen<GameOverScreen>()
+        if( gameState == GameState.Playing) {
+            gameState = GameState.WaitForGameOver
+            Timer.schedule(object : Task() {
+                override fun run() {
+                    gameState = GameState.GameOver
+                    setScreen<GameOverScreen>()
+                }
+
+            }, 2.5f)
+        }
     }
 
     /**

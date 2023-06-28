@@ -76,6 +76,7 @@ object Context : InjectionContext() {
                     inject(),
                     inject(),
                     inject(),
+                    inject(),
                     inject<ExtendViewport>(),
                     inject()
                 )
@@ -89,7 +90,8 @@ object Context : InjectionContext() {
             addSystem(MusicSystem(inject()))
             addSystem(BubbleSystem())
             addSystem(BubbleLifeSystem())
-            addSystem(CrazyCameraSystem(inject(), 0.1f))
+//            addSystem(CrazyCameraSystem(inject(), 0.1f))
+            addSystem(CameraFollowSystem(inject(), 0.1f))
             addSystem(PlayerFlashlightSystem())
             addSystem(HeadUnderWaterSystem())
             addSystem(DiveControlSystem())

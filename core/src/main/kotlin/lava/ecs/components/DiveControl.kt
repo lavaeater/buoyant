@@ -8,6 +8,7 @@ import ktx.ashley.mapperFor
 import ktx.math.vec2
 
 class DiveControl: Component, Pool.Poolable {
+    var dead = false
     var rotationSpeed = 90f
     var strokeTimerDefault = 2f
     val diveForceAnchor = vec2()
@@ -16,6 +17,7 @@ class DiveControl: Component, Pool.Poolable {
     var isUnderWater = false
     var airSupply = 100f
     var strokeTimer = 2f
+    private val alive get() = !dead
 
     fun add(direction: Direction) {
         directions.add(direction)
@@ -38,10 +40,11 @@ class DiveControl: Component, Pool.Poolable {
     val rotationFactor get() = directions.map { it.directionVector.x }.sum()
     val divingFactor get() = directions.map { it.directionVector.y }.sum()
     val hover get() = has(Direction.Hover)
-    val isRotating get() = has(Direction.RotateLeft) || has(Direction.RotateRight)
-    val isDiving get() = has(Direction.Swim)
+    val isRotating get() = alive && has(Direction.RotateLeft) || has(Direction.RotateRight)
+    val isDiving get() = alive && has(Direction.Swim)
 
     override fun reset() {
+        dead = false
         diveForce = 25f
         airSupply = 100f
         directions.clear()

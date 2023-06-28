@@ -53,7 +53,7 @@ class MusicPlayer {
 
     private val signalConductor =
         SignalConductor(
-            80f,
+            100f,
             4f,
             4f,
             mutableListOf(
@@ -140,7 +140,7 @@ class MusicPlayer {
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
         ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
         for (sound in soundsToPlayRightNowIGuess) {
-            sound.soundSource.play(1f, sound.pitch, 0f)
+            sound.soundSource.play(0.5f, sound.pitch, 0f)
         }
     }
 }

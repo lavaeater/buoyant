@@ -10,6 +10,7 @@ class DeathSystem(private val game: BuoyantGame):IteratingSystem(allOf(DiveContr
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val diveControl = DiveControl.mapper.get(entity)
         if (diveControl.airSupply < 0.0f) {
+            diveControl.dead = true
             game.goToGameOver()
         }
     }
