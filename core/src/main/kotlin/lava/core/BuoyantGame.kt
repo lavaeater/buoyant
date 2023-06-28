@@ -44,7 +44,7 @@ class BuoyantGame : MainGame() {
                     setScreen<GameOverScreen>()
                 }
 
-            }, 2.5f)
+            }, 5f)
         }
     }
 
