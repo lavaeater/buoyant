@@ -49,6 +49,14 @@ class GameScreen(
                     diveControl.add(Direction.Swim)
                 })
             setBoth(
+                Input.Keys.SPACE,
+                "Swim up",
+                {
+                    diveControl.remove(Direction.Swim)
+                }, {
+                    diveControl.add(Direction.Swim)
+                })
+            setBoth(
                 Input.Keys.S,
                 "Swim down",
                 {
