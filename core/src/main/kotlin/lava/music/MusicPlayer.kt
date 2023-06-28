@@ -1,6 +1,7 @@
 package lava.music
 
 import com.badlogic.gdx.ai.GdxAI
+import com.badlogic.gdx.math.MathUtils
 import twodee.music.*
 
 class MusicPlayer {
@@ -131,16 +132,19 @@ class MusicPlayer {
             signalConductor.stop()
     }
 
+    var volume = 0.25f
+
     var intensity: Float get() = signalConductor.baseIntensity
         set(value) {
             signalConductor.baseIntensity = value
+            volume = MathUtils.lerp(0.15f, 0.6f, value)
         }
 
     private fun playSounds() {
         val soundsToPlayRightNowIGuess = ToPlay.soundsToPlay.filter { it.targetTime < timePiece.time }
         ToPlay.soundsToPlay.removeAll(soundsToPlayRightNowIGuess)
         for (sound in soundsToPlayRightNowIGuess) {
-            sound.soundSource.play(0.5f, sound.pitch, 0f)
+            sound.soundSource.play(volume, sound.pitch, 0f)
         }
     }
 }
