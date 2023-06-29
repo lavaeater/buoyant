@@ -29,7 +29,7 @@ class EmitBubblesSystem(private val sfxPlayer: SfxPlayer):IteratingSystem(allOf(
                 val emittingBody = emittingFixture.body
                 val emittingPosition = emittingBody.getWorldPoint(emittingFixture.shape.getPosition())
                 entityFactory.emitBubble(emittingPosition, 0.1f)
-                sfxPlayer.playSound(Sfx.Bubbles, 1f)
+                sfxPlayer.playSound(Sfx.Bubbles)
             }
         } else {
             coolDown = 5f

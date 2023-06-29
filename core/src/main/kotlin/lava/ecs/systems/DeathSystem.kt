@@ -18,7 +18,7 @@ class DeathSystem(
         val diveControl = DiveControl.mapper.get(entity)
         if (diveControl.airSupply < 0.0f) {
             musicPlayer.stop()
-            sfxPlayer.playSound(Sfx.Drown, 1f)
+            sfxPlayer.playSound(Sfx.Drown)
             diveControl.dead = true
             game.goToGameOver()
         }

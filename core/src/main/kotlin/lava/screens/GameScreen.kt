@@ -178,7 +178,7 @@ class GameScreen(
     override fun show() {
         super.show()
         if (game.gameState == GameState.GameStart) {
-            sfxPlayer.playSound(Sfx.Intro, 1f)
+            sfxPlayer.playSound(Sfx.Intro)
             entityFactory.createMap("two")
             engine().systems.forEach { it.setProcessing(true) }
             game.gameState = GameState.Playing

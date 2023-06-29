@@ -61,7 +61,7 @@ class GameOverScreen(
     override fun show() {
         super.show()
         if(game.gameState == GameState.GameVictory)
-            sfxPlayer.playSound(Sfx.Outro, 1f)
+            sfxPlayer.playSound(Sfx.Outro)
     }
 
     override fun renderBatch(delta: Float) {

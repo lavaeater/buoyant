@@ -89,6 +89,7 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(RemoveEntitySystem())
             addSystem(MusicSystem(inject()))
+            addSystem(UpdateSfxSystem(inject()))
             addSystem(EmitBubblesSystem(inject()))
             addSystem(BubbleLifeSystem())
             addSystem(BubbleBuoyancySystem())

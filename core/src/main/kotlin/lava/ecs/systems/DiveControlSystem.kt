@@ -62,7 +62,7 @@ class DiveControlSystem(private val sfxPlayer: SfxPlayer) : IteratingSystem(allO
             if(diveControl.airSupply < 30f) {
                 if(diaphragmCoolDown < 0f) {
                     diaphragmCoolDown = 9f
-                    sfxPlayer.playSound(Sfx.Diaphragm, 1f)
+                    sfxPlayer.playSound(Sfx.Diaphragm)
                 } else {
                     diaphragmCoolDown -= deltaTime
                 }
@@ -70,7 +70,7 @@ class DiveControlSystem(private val sfxPlayer: SfxPlayer) : IteratingSystem(allO
         } else {
             if(wasUnderWater) {
                 wasUnderWater = false
-                sfxPlayer.playSound(Sfx.Breath, 1f)
+                sfxPlayer.playSound(Sfx.Breath)
             }
             diveControl.airSupply = 100f
         }
